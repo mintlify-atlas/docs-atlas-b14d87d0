@@ -1,0 +1,116 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "MetaMap iOS SDK",
+  "projectDescription": "Identity verification and KYC SDK for iOS applications with document, biometric, and phone verification capabilities.",
+  "theme": "palm",
+  "primaryColor": "#444444",
+  "lightColor": "#e78465",
+  "darkColor": "#65cff4",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "core-concepts/authentication",
+              "core-concepts/flows",
+              "core-concepts/metadata",
+              "core-concepts/delegates"
+            ]
+          },
+          {
+            "group": "Verification Types",
+            "pages": [
+              "verification/document-verification",
+              "verification/biometric-verification",
+              "verification/phone-email-verification"
+            ]
+          },
+          {
+            "group": "UI Integration",
+            "pages": [
+              "ui/uikit-integration",
+              "ui/swiftui-integration",
+              "ui/objective-c-integration",
+              "ui/customization"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/metadata-options",
+              "advanced/multi-flow-support",
+              "advanced/localization",
+              "advanced/permissions",
+              "advanced/error-handling"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/changelog",
+              "resources/troubleshooting",
+              "resources/migration-guide",
+              "resources/faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core Classes",
+            "pages": [
+              "api/metamap",
+              "api/metamap-button",
+              "api/metamap-button-result"
+            ]
+          },
+          {
+            "group": "Protocols",
+            "pages": [
+              "api/metamap-button-result-delegate"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "api/metamap-metadata",
+              "api/metamap-ui-config"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Document verification (ID, passport, driver's license)",
+    "Biometric verification with liveness detection",
+    "Phone and email verification",
+    "Multi-flow support for custom verification workflows",
+    "Extensive UI customization options",
+    "Multi-language support (10+ languages)",
+    "SwiftUI and UIKit integration",
+    "Objective-C compatibility"
+  ],
+  "publicApiSurface": [
+    "MetaMap.shared.showMetaMapFlow(clientId:flowId:metadata:)",
+    "MetaMapButton",
+    "MetaMapButtonResult.shared",
+    "MetaMapButtonResultDelegate.verificationSuccess(identityId:verificationID:)",
+    "MetaMapButtonResultDelegate.verificationCancelled()",
+    "MetaMapMetadata",
+    "MetaMapUIConfig"
+  ]
+}
