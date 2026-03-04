@@ -1,0 +1,161 @@
+---
+title: "MetaMap"
+description: "Core class for launching the MetaMap verification flow in your iOS application."
+---
+
+## Overview
+
+The `MetaMap` class is the main entry point for integrating MetaMap verification into your iOS application. It provides a singleton instance and methods to launch the verification flow with customizable parameters.
+
+## Properties
+
+### shared
+
+```swift
+class var shared: MetaMap { get }
+```
+
+```objc
++ (MetaMap * _Nonnull)shared;
+```
+
+The shared singleton instance of MetaMap. Use this property to access the MetaMap functionality throughout your application.
+
+**Returns:** The shared `MetaMap` instance.
+
+## Methods
+
+### showMetaMapFlow
+
+```swift
+func showMetaMapFlow(
+    clientId: String,
+    flowId: String?,
+    configurationId: String?,
+    encryptionConfigurationId: String?,
+    metadata: [String: Any]?
+)
+```
+
+```objc
+- (void)showMetaMapFlowWithClientId:(NSString * _Nonnull)clientId 
+                             flowId:(NSString * _Nullable)flowId 
+                  configurationId:(NSString * _Nullable)configurationId 
+       encryptionConfigurationId:(NSString * _Nullable)encryptionConfigurationId 
+                           metadata:(NSDictionary<NSString *, id> * _Nullable)metadata;
+```
+
+Launches the MetaMap verification flow with the specified parameters.
+
+<ParamField path="clientId" type="String" required>
+  Your MetaMap client ID. This is required to authenticate your application with the MetaMap service.
+</ParamField>
+
+<ParamField path="flowId" type="String" default="null">
+  The ID of the specific verification flow to use. If not provided, the default flow will be used.
+</ParamField>
+
+<ParamField path="configurationId" type="String" default="null">
+  The ID of the configuration to use for the verification flow.
+</ParamField>
+
+<ParamField path="encryptionConfigurationId" type="String" default="null">
+  The ID of the encryption configuration to use for securing verification data.
+</ParamField>
+
+<ParamField path="metadata" type="Dictionary<String, Any>" default="null">
+  Additional metadata to pass to the verification flow. This can include:
+  - `fixedLanguage`: Set the SDK language ("en", "es", "fr", "pt", "ru", "tr", "de", "it", "pl", "th")
+  - `buttonColor`: Customize the button color using hex format
+  - `buttonTextColor`: Customize the button text color using hex format
+  - `identityId`: For re-verification purposes
+  - `encryptionConfigurationId`: Alternative way to set encryption configuration
+  - `regularFont`: Custom regular font file name
+  - `boldFont`: Custom bold font file name
+  - Any custom key-value pairs for your integration
+</ParamField>
+
+## Usage Examples
+
+### Swift
+
+```swift
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    @objc private func metaMapButtonAction() {
+        // Launch MetaMap flow with required parameters
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            configurationId: nil,
+            encryptionConfigurationId: nil,
+            metadata: [
+                "key1": "value1",
+                "key2": 123,
+                "fixedLanguage": "en",
+                "buttonColor": "#FF5733"
+            ]
+        )
+    }
+}
+```
+
+### Objective-C
+
+```objc
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@implementation ViewController
+
+- (void)metaMapButtonAction:(UIButton *)sender {
+    // Launch MetaMap flow with required parameters
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID"
+                              configurationId:nil
+                   encryptionConfigurationId:nil
+                                       metadata:@{
+                                           @"key1": @"value1",
+                                           @"key2": @123,
+                                           @"fixedLanguage": @"en"
+                                       }];
+}
+
+@end
+```
+
+### SwiftUI
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct ContentView: View {
+    var body: some View {
+        Button(action: {
+            MetaMap.shared.showMetaMapFlow(
+                clientId: "YOUR_CLIENT_ID",
+                flowId: "YOUR_FLOW_ID",
+                configurationId: nil,
+                encryptionConfigurationId: nil,
+                metadata: ["key1": "value1", "key2": 123]
+            )
+        }) {
+            Text("Start Verification")
+        }
+    }
+}
+```
+
+## Notes
+
+- The `MetaMap` class uses a singleton pattern. Always access it through the `shared` property.
+- Make sure to configure the required permissions in your `Info.plist` file before launching the verification flow.
+- The verification flow will be presented modally on top of the current view controller.
+- Use `MetaMapButtonResult.shared.delegate` to receive callbacks about the verification status.
+
+## See Also
+
+- [MetaMapButton](/api/metamap-button) - Pre-built button component for launching verification
+- [MetaMapButtonResult](/api/metamap-button-result) - Handle verification results and callbacks

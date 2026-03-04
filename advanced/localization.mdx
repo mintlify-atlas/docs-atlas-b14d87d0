@@ -1,0 +1,301 @@
+---
+title: "Localization & Language Support"
+description: "Configure language settings and localization for MetaMap iOS SDK"
+---
+
+The MetaMap iOS SDK supports multiple languages to provide a localized verification experience for users worldwide. You can set a fixed language or allow the SDK to use the device's default language.
+
+## Supported Languages
+
+The SDK supports the following language codes:
+
+| Language | Code |
+|----------|------|
+| English (default) | `en` |
+| Spanish | `es` |
+| French | `fr` |
+| Portuguese | `pt` |
+| Russian | `ru` |
+| Turkish | `tr` |
+| German | `de` |
+| Italian | `it` |
+| Polish | `pl` |
+| Thai | `th` |
+
+## Setting a Fixed Language
+
+Use the `fixedLanguage` metadata parameter to set a specific language for the SDK:
+
+### Swift
+
+```swift
+import MetaMapSDK
+
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["fixedLanguage": "es"]
+)
+```
+
+### Objective-C
+
+```objc
+#import <MetaMapSDK/MetaMapSDK.h>
+
+[MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                     flowId:@"YOUR_FLOW_ID"
+                                   metadata:@{@"fixedLanguage": @"es"}];
+```
+
+## Device Language Detection
+
+By default (when `fixedLanguage` is not specified), the SDK automatically detects and uses the device's language setting if it's supported. If the device language is not supported, the SDK falls back to English.
+
+```swift
+import MetaMapSDK
+
+// SDK will use device language if supported, otherwise English
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [:] // No fixedLanguage specified
+)
+```
+
+## Language Selection Examples
+
+### Example 1: User-Selected Language
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class LanguageSelectionViewController: UIViewController {
+    
+    let supportedLanguages: [(name: String, code: String)] = [
+        ("English", "en"),
+        ("Español", "es"),
+        ("Français", "fr"),
+        ("Português", "pt"),
+        ("Русский", "ru"),
+        ("Türkçe", "tr"),
+        ("Deutsch", "de"),
+        ("Italiano", "it"),
+        ("Polski", "pl"),
+        ("ไทย", "th")
+    ]
+    
+    func startVerification(languageCode: String) {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["fixedLanguage": languageCode]
+        )
+    }
+}
+```
+
+### Example 2: Region-Based Language
+
+```swift
+import MetaMapSDK
+import Foundation
+
+class RegionalLanguageHandler {
+    
+    func startVerificationWithRegionalLanguage() {
+        let locale = Locale.current
+        let languageCode = getMetaMapLanguageCode(from: locale)
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["fixedLanguage": languageCode]
+        )
+    }
+    
+    private func getMetaMapLanguageCode(from locale: Locale) -> String {
+        let deviceLanguage = locale.languageCode ?? "en"
+        
+        // Map device language to MetaMap supported languages
+        let supportedLanguages = ["en", "es", "fr", "pt", "ru", "tr", "de", "it", "pl", "th"]
+        
+        if supportedLanguages.contains(deviceLanguage) {
+            return deviceLanguage
+        }
+        
+        // Handle special cases
+        switch deviceLanguage {
+        case "pt-BR", "pt-PT":
+            return "pt"
+        case "es-MX", "es-ES":
+            return "es"
+        case "fr-CA", "fr-FR":
+            return "fr"
+        default:
+            return "en" // Default to English
+        }
+    }
+}
+```
+
+### Example 3: Multi-Language Support with Picker
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct LanguagePickerView: View {
+    
+    @State private var selectedLanguage = "en"
+    
+    let languages = [
+        ("🇺🇸 English", "en"),
+        ("🇪🇸 Español", "es"),
+        ("🇫🇷 Français", "fr"),
+        ("🇵🇹 Português", "pt"),
+        ("🇷🇺 Русский", "ru"),
+        ("🇹🇷 Türkçe", "tr"),
+        ("🇩🇪 Deutsch", "de"),
+        ("🇮🇹 Italiano", "it"),
+        ("🇵🇱 Polski", "pl"),
+        ("🇹🇭 ไทย", "th")
+    ]
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Select Your Language")
+                .font(.headline)
+            
+            Picker("Language", selection: $selectedLanguage) {
+                ForEach(languages, id: \.1) { language in
+                    Text(language.0).tag(language.1)
+                }
+            }
+            .pickerStyle(WheelPickerStyle())
+            
+            Button("Start Verification") {
+                startVerification()
+            }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+        }
+        .padding()
+    }
+    
+    private func startVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["fixedLanguage": selectedLanguage]
+        )
+    }
+}
+```
+
+## Storing Language Preferences
+
+```swift
+import Foundation
+import MetaMapSDK
+
+class LanguagePreferenceManager {
+    
+    private let userDefaults = UserDefaults.standard
+    private let languageKey = "metamap_preferred_language"
+    
+    func saveLanguagePreference(_ languageCode: String) {
+        userDefaults.set(languageCode, forKey: languageKey)
+    }
+    
+    func getLanguagePreference() -> String {
+        return userDefaults.string(forKey: languageKey) ?? "en"
+    }
+    
+    func startVerificationWithSavedLanguage() {
+        let language = getLanguagePreference()
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["fixedLanguage": language]
+        )
+    }
+}
+
+// Usage
+let manager = LanguagePreferenceManager()
+manager.saveLanguagePreference("es")
+manager.startVerificationWithSavedLanguage()
+```
+
+## Combined with Other Metadata
+
+You can combine `fixedLanguage` with other metadata parameters:
+
+```swift
+import MetaMapSDK
+
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "fixedLanguage": "es",
+        "buttonColor": "#007AFF",
+        "buttonTextColor": "#FFFFFF",
+        "userId": "12345"
+    ]
+)
+```
+
+## Localization Best Practices
+
+1. **User Choice**: Allow users to select their preferred language in your app settings
+2. **Persistence**: Store language preferences using UserDefaults or a similar mechanism
+3. **Regional Defaults**: Consider using device locale to suggest an appropriate language
+4. **Fallback**: Always have English as a fallback for unsupported languages
+5. **Testing**: Test your app with different language settings to ensure proper localization
+6. **Consistency**: Use the same language code throughout your app and MetaMap integration
+
+## Language Code Validation
+
+```swift
+import MetaMapSDK
+
+class LanguageValidator {
+    
+    static let supportedLanguages = ["en", "es", "fr", "pt", "ru", "tr", "de", "it", "pl", "th"]
+    
+    static func isLanguageSupported(_ code: String) -> Bool {
+        return supportedLanguages.contains(code)
+    }
+    
+    static func validateAndStartVerification(languageCode: String) {
+        let validLanguage = isLanguageSupported(languageCode) ? languageCode : "en"
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["fixedLanguage": validLanguage]
+        )
+    }
+}
+```
+
+<Note>
+  The SDK will automatically fall back to English if an unsupported language code is provided or if the device language is not in the supported list.
+</Note>
+
+## Handling RTL Languages
+
+While the current SDK supports Turkish, which uses LTR (left-to-right) text direction, if you're building an app that supports RTL languages, ensure your app's layout adapts accordingly. The MetaMap SDK will handle text direction automatically based on the selected language.
+
+```swift
+// Your app should respect the language direction
+if UIView.userInterfaceLayoutDirection(for: .unspecified) == .rightToLeft {
+    // Adjust your UI for RTL if needed
+}
+```

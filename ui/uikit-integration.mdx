@@ -1,0 +1,159 @@
+---
+title: "UIKit Integration"
+description: "Complete guide to integrating MetaMap SDK with UIKit using MetaMapButton"
+---
+
+## Overview
+
+This guide shows you how to integrate the MetaMap SDK into your UIKit-based iOS application using the `MetaMapButton` component.
+
+## Prerequisites
+
+- MetaMap SDK installed via CocoaPods
+- iOS 13.0 or later
+- Swift 5.7 or later
+
+## Implementation
+
+### Basic Setup
+
+Here's a complete implementation of MetaMap verification in a UIKit view controller:
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		self.setupMetaMapButton()
+	}
+
+    private func setupMetaMapButton() {
+
+      //init button
+      let metaMapButton = MetaMapButton()
+
+      //add button action
+            metaMapButton.addTarget(self, action: #selector(self.metaMapButtonAction), for: .touchUpInside)
+
+      //set view of button
+            metaMapButton.frame = CGRect(x: 20, y: self.view.frame.size.height/2 - 50, width: view.frame.size.width - 40, height: 50)
+
+      //add button to yours view
+      view.addSubview(metaMapButton)
+
+      //set delegate to get result
+      MetaMapButtonResult.shared.delegate = self
+
+    }
+
+      @objc private func metaMapButtonAction() {
+	//set params to showMetaMapFlow
+	MetaMap.shared.showMetaMapFlow(clientId: "YOUR_CLIENT_ID",
+				flowId: "YOUR_FLOW_ID",
+				metadata: ["key1": "value1", "key2": 123])
+	}
+}
+
+//MARK: MetaMapButtonResultDelegate
+extension ViewController: MetaMapButtonResultDelegate {
+
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+		print("MetaMap Verification Success \(identityId)")
+	}
+
+	func verificationCancelled() {
+		print("MetaMap Verification Cancelled")
+	}
+}
+```
+
+## Key Components
+
+### 1. Initialize MetaMapButton
+
+Create an instance of `MetaMapButton` in your view controller:
+
+```swift
+let metaMapButton = MetaMapButton()
+```
+
+### 2. Add Button Action
+
+Connect the button to an action handler:
+
+```swift
+metaMapButton.addTarget(self, action: #selector(self.metaMapButtonAction), for: .touchUpInside)
+```
+
+### 3. Configure Button Layout
+
+Set the button's frame and add it to your view:
+
+```swift
+metaMapButton.frame = CGRect(x: 20, y: self.view.frame.size.height/2 - 50, width: view.frame.size.width - 40, height: 50)
+view.addSubview(metaMapButton)
+```
+
+### 4. Set Delegate
+
+Assign the delegate to receive verification results:
+
+```swift
+MetaMapButtonResult.shared.delegate = self
+```
+
+### 5. Launch Verification Flow
+
+In your button action handler, call `showMetaMapFlow` with your credentials:
+
+```swift
+@objc private func metaMapButtonAction() {
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: ["key1": "value1", "key2": 123]
+    )
+}
+```
+
+## Handling Results
+
+Implement the `MetaMapButtonResultDelegate` protocol to handle verification results:
+
+```swift
+extension ViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("MetaMap Verification Success \(identityId ?? "")")
+        // Handle successful verification
+    }
+
+    func verificationCancelled() {
+        print("MetaMap Verification Cancelled")
+        // Handle cancellation
+    }
+}
+```
+
+### Delegate Methods
+
+- `verificationSuccess(identityId:verificationID:)` - Called when verification completes successfully
+- `verificationCancelled()` - Called when the user cancels the verification process
+
+## Parameters
+
+### showMetaMapFlow Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `clientId` | String | Yes | Your MetaMap client ID |
+| `flowId` | String | Yes | The verification flow ID |
+| `metadata` | Dictionary | No | Additional metadata and customization options |
+
+## Next Steps
+
+- Learn about [UI Customization](/ui/customization) options
+- Explore [SwiftUI Integration](/ui/swiftui-integration)
+- See [Objective-C Integration](/ui/objective-c-integration)

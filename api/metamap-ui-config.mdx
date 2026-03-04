@@ -1,0 +1,312 @@
+---
+title: "MetaMapUIConfig"
+description: "UI configuration options for customizing the MetaMap SDK appearance"
+---
+
+## Overview
+
+The `MetaMapUIConfig` class provides UI configuration options for customizing the visual appearance of the MetaMap SDK. While this class exists in the SDK framework, its properties are configured through the metadata dictionary passed to the `showMetaMapFlow` method.
+
+<Note>
+  As of SDK version 3.22.8, UI configuration is handled through the metadata dictionary rather than direct class instantiation. See the examples below for proper usage.
+</Note>
+
+## Class Definition
+
+```objc Objective-C
+SWIFT_CLASS("_TtC10MetaMapSDK15MetaMapUIConfig")
+@interface MetaMapUIConfig : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+```
+
+<Warning>
+  The `MetaMapUIConfig` class cannot be directly instantiated. Use the metadata dictionary approach shown in the usage section.
+</Warning>
+
+## Configuration Options
+
+UI customization is achieved through the following metadata keys:
+
+### Color Configuration
+
+<ParamField path="buttonColor" type="String" default="#FFFFFF">
+  Sets the background color of the main action button using hexadecimal color format.
+
+  ```swift
+  metadata: ["buttonColor": "#FF5733"]
+  ```
+</ParamField>
+
+<ParamField path="buttonTextColor" type="String" default="#000000">
+  Sets the text color of the main action button using hexadecimal color format.
+
+  ```swift
+  metadata: ["buttonTextColor": "#FFFFFF"]
+  ```
+</ParamField>
+
+### Font Configuration
+
+<ParamField path="regularFont" type="String">
+  Specifies the filename of a custom regular weight font. The font file must be included in your app's bundle.
+
+  ```swift
+  metadata: ["regularFont": "CustomFont-Regular.ttf"]
+  ```
+
+  <Note>
+    Font files must be properly registered in your app's Info.plist under the `UIAppFonts` key.
+  </Note>
+</ParamField>
+
+<ParamField path="boldFont" type="String">
+  Specifies the filename of a custom bold weight font. The font file must be included in your app's bundle.
+
+  ```swift
+  metadata: ["boldFont": "CustomFont-Bold.ttf"]
+  ```
+</ParamField>
+
+### Language Configuration
+
+<ParamField path="fixedLanguage" type="String" default="en">
+  Sets the UI language. Supported values: `"en"`, `"es"`, `"fr"`, `"pt"`, `"ru"`, `"tr"`, `"de"`, `"it"`, `"pl"`, `"th"`.
+
+  ```swift
+  metadata: ["fixedLanguage": "es"]
+  ```
+</ParamField>
+
+## Usage Examples
+
+### Basic UI Customization
+
+<CodeGroup>
+
+```swift Swift
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    @objc private func showCustomizedFlow() {
+        let uiConfig: [String: String] = [
+            "buttonColor": "#007AFF",
+            "buttonTextColor": "#FFFFFF",
+            "fixedLanguage": "en"
+        ]
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: uiConfig
+        )
+    }
+}
+```
+
+```objc Objective-C
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@implementation ViewController
+
+- (void)showCustomizedFlow {
+    NSDictionary *uiConfig = @{
+        @"buttonColor": @"#007AFF",
+        @"buttonTextColor": @"#FFFFFF",
+        @"fixedLanguage": @"en"
+    };
+    
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                          flowId:@"YOUR_FLOW_ID"
+                                        metadata:uiConfig];
+}
+
+@end
+```
+
+</CodeGroup>
+
+### Custom Fonts and Colors
+
+<CodeGroup>
+
+```swift Swift
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    private func configureCustomBranding() {
+        let brandingConfig: [String: String] = [
+            // Brand colors
+            "buttonColor": "#FF5733",
+            "buttonTextColor": "#FFFFFF",
+            
+            // Custom fonts (must be in your bundle)
+            "regularFont": "Montserrat-Regular.ttf",
+            "boldFont": "Montserrat-Bold.ttf",
+            
+            // Language
+            "fixedLanguage": "es"
+        ]
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: brandingConfig
+        )
+    }
+}
+```
+
+```objc Objective-C
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@implementation ViewController
+
+- (void)configureCustomBranding {
+    NSDictionary *brandingConfig = @{
+        // Brand colors
+        @"buttonColor": @"#FF5733",
+        @"buttonTextColor": @"#FFFFFF",
+        
+        // Custom fonts (must be in your bundle)
+        @"regularFont": @"Montserrat-Regular.ttf",
+        @"boldFont": @"Montserrat-Bold.ttf",
+        
+        // Language
+        @"fixedLanguage": @"es"
+    };
+    
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                          flowId:@"YOUR_FLOW_ID"
+                                        metadata:brandingConfig];
+}
+
+@end
+```
+
+</CodeGroup>
+
+### Adding Custom Fonts to Your Project
+
+To use custom fonts with the MetaMap SDK:
+
+1. Add your font files (.ttf or .otf) to your Xcode project
+2. Ensure the fonts are included in your app target
+3. Add the font filenames to your Info.plist:
+
+```xml Info.plist
+<key>UIAppFonts</key>
+<array>
+    <string>Montserrat-Regular.ttf</string>
+    <string>Montserrat-Bold.ttf</string>
+</array>
+```
+
+4. Reference the font files in your metadata configuration
+
+## Complete Configuration Example
+
+<CodeGroup>
+
+```swift Swift
+import MetaMapSDK
+
+class VerificationViewController: UIViewController {
+    
+    private func showFullyCustomizedFlow() {
+        let config: [String: Any] = [
+            // UI Configuration
+            "buttonColor": "#6200EE",
+            "buttonTextColor": "#FFFFFF",
+            "regularFont": "OpenSans-Regular.ttf",
+            "boldFont": "OpenSans-Bold.ttf",
+            "fixedLanguage": "en",
+            
+            // Identity Configuration
+            "identityId": "user_12345",
+            
+            // Security
+            "encryptionConfigurationId": "config_abc123",
+            
+            // Custom tracking data
+            "source": "mobile_app",
+            "version": "2.1.0"
+        ]
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: config
+        )
+    }
+}
+```
+
+```objc Objective-C
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@implementation VerificationViewController
+
+- (void)showFullyCustomizedFlow {
+    NSDictionary *config = @{
+        // UI Configuration
+        @"buttonColor": @"#6200EE",
+        @"buttonTextColor": @"#FFFFFF",
+        @"regularFont": @"OpenSans-Regular.ttf",
+        @"boldFont": @"OpenSans-Bold.ttf",
+        @"fixedLanguage": @"en",
+        
+        // Identity Configuration
+        @"identityId": @"user_12345",
+        
+        // Security
+        @"encryptionConfigurationId": @"config_abc123",
+        
+        // Custom tracking data
+        @"source": @"mobile_app",
+        @"version": @"2.1.0"
+    };
+    
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                          flowId:@"YOUR_FLOW_ID"
+                                        metadata:config];
+}
+
+@end
+```
+
+</CodeGroup>
+
+## Best Practices
+
+<Card title="Color Selection" icon="palette">
+  Use high contrast color combinations for better accessibility. Ensure text is readable against button backgrounds.
+</Card>
+
+<Card title="Font Compatibility" icon="font">
+  Test custom fonts across different screen sizes and iOS versions. Provide fallback options if custom fonts fail to load.
+</Card>
+
+<Card title="Language Support" icon="language">
+  Set `fixedLanguage` based on user preferences or device locale to provide the best user experience.
+</Card>
+
+<Card title="Consistent Branding" icon="palette">
+  Match the MetaMap UI colors and fonts to your app's design system for a seamless user experience.
+</Card>
+
+## Notes
+
+- Invalid hexadecimal color values will fallback to defaults
+- If custom fonts are not found, the SDK uses system fonts
+- All UI configuration keys are optional
+- Configuration is applied per verification flow session
+
+## See Also
+
+- [MetaMapMetadata](/api/metamap-metadata) - Complete metadata configuration reference
+- [MetaMap](/api/metamap) - Main SDK class
+- [MetaMapButton](/api/metamap-button) - Pre-built verification button

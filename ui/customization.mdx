@@ -1,0 +1,401 @@
+---
+title: "UI Customization"
+description: "Customize the appearance and behavior of MetaMap SDK with metadata parameters"
+---
+
+## Overview
+
+The MetaMap SDK provides several customization options through the `metadata` parameter in the `showMetaMapFlow` method. You can customize button colors, fonts, language, and more.
+
+## Metadata Parameter
+
+All customization options are passed as key-value pairs in the `metadata` dictionary:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "buttonColor": "#FF5733",
+            "buttonTextColor": "#FFFFFF",
+            "fixedLanguage": "es",
+            "regularFont": "Roboto-Regular.ttf",
+            "boldFont": "Roboto-Bold.ttf"
+        ]
+    )
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:@{
+                                           @"buttonColor": @"#FF5733",
+                                           @"buttonTextColor": @"#FFFFFF",
+                                           @"fixedLanguage": @"es",
+                                           @"regularFont": @"Roboto-Regular.ttf",
+                                           @"boldFont": @"Roboto-Bold.ttf"
+                                       }];
+    ```
+  </Tab>
+</Tabs>
+
+## Color Customization
+
+### Button Color
+
+Customize the main button background color using hex color format:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: ["buttonColor": "#FF5733"]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{@"buttonColor": @"#FF5733"}
+    ```
+  </Tab>
+</Tabs>
+
+**Default:** White (`#FFFFFF`)
+
+**Format:** Hex color code (e.g., `#FF5733`, `#00A86B`)
+
+### Button Text Color
+
+Customize the button title color using hex color format:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: ["buttonTextColor": "#FFFFFF"]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{@"buttonTextColor": @"#FFFFFF"}
+    ```
+  </Tab>
+</Tabs>
+
+**Default:** Black (`#000000`)
+
+**Format:** Hex color code (e.g., `#FFFFFF`, `#333333`)
+
+### Example: Complete Color Customization
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    // Blue button with white text
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "buttonColor": "#007AFF",
+            "buttonTextColor": "#FFFFFF"
+        ]
+    )
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    // Blue button with white text
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:@{
+                                           @"buttonColor": @"#007AFF",
+                                           @"buttonTextColor": @"#FFFFFF"
+                                       }];
+    ```
+  </Tab>
+</Tabs>
+
+## Language Customization
+
+### Fixed Language
+
+Set a specific language for the SDK interface:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: ["fixedLanguage": "es"]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{@"fixedLanguage": @"es"}
+    ```
+  </Tab>
+</Tabs>
+
+**Default:** English (`"en"`)
+
+**Supported Languages:**
+
+| Code | Language |
+|------|----------|
+| `en` | English |
+| `es` | Spanish |
+| `fr` | French |
+| `pt` | Portuguese |
+| `ru` | Russian |
+| `tr` | Turkish |
+| `de` | German |
+| `it` | Italian |
+| `pl` | Polish |
+| `th` | Thai |
+
+### Example: Spanish Interface
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: ["fixedLanguage": "es"]
+    )
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:@{@"fixedLanguage": @"es"}];
+    ```
+  </Tab>
+</Tabs>
+
+## Font Customization
+
+### Custom Fonts
+
+You can customize both regular and bold fonts used throughout the SDK interface:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: [
+        "regularFont": "REGULAR_FONT_NAME.ttf",
+        "boldFont": "BOLD_FONT_NAME.ttf"
+    ]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{
+        @"regularFont": @"REGULAR_FONT_NAME.ttf",
+        @"boldFont": @"BOLD_FONT_NAME.ttf"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+**Important:** Your project must include these font files, otherwise the SDK will use default system fonts.
+
+### Adding Custom Fonts to Your Project
+
+1. Add the `.ttf` or `.otf` font files to your Xcode project
+2. Ensure the fonts are included in your app target
+3. Add the font names to your `Info.plist`:
+
+```xml
+<key>UIAppFonts</key>
+<array>
+    <string>Roboto-Regular.ttf</string>
+    <string>Roboto-Bold.ttf</string>
+</array>
+```
+
+### Example: Custom Font Implementation
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "regularFont": "Roboto-Regular.ttf",
+            "boldFont": "Roboto-Bold.ttf"
+        ]
+    )
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:@{
+                                           @"regularFont": @"Roboto-Regular.ttf",
+                                           @"boldFont": @"Roboto-Bold.ttf"
+                                       }];
+    ```
+  </Tab>
+</Tabs>
+
+## Additional Metadata Options
+
+### Identity ID (Re-verification)
+
+Pass an existing identity ID to update or re-verify a user:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: ["identityId": "existing-identity-id"]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{@"identityId": @"existing-identity-id"}
+    ```
+  </Tab>
+</Tabs>
+
+### Encryption Configuration ID
+
+Enable data encryption by providing an encryption configuration ID:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: ["encryptionConfigurationId": "your-encryption-config-id"]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{@"encryptionConfigurationId": @"your-encryption-config-id"}
+    ```
+  </Tab>
+</Tabs>
+
+### Custom Key-Value Pairs
+
+You can also pass custom metadata that will be associated with the verification:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    metadata: [
+        "key1": "value1",
+        "key2": 123,
+        "userId": "user-12345",
+        "source": "mobile-app"
+    ]
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    metadata:@{
+        @"key1": @"value1",
+        @"key2": @123,
+        @"userId": @"user-12345",
+        @"source": @"mobile-app"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Complete Customization Example
+
+Here's a comprehensive example combining multiple customization options:
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    import UIKit
+    import MetaMapSDK
+    
+    class ViewController: UIViewController {
+        @objc private func metaMapButtonAction() {
+            MetaMap.shared.showMetaMapFlow(
+                clientId: "YOUR_CLIENT_ID",
+                flowId: "YOUR_FLOW_ID",
+                metadata: [
+                    // Color customization
+                    "buttonColor": "#007AFF",
+                    "buttonTextColor": "#FFFFFF",
+                    
+                    // Language
+                    "fixedLanguage": "es",
+                    
+                    // Custom fonts
+                    "regularFont": "Roboto-Regular.ttf",
+                    "boldFont": "Roboto-Bold.ttf",
+                    
+                    // Custom metadata
+                    "userId": "user-12345",
+                    "source": "ios-app",
+                    "environment": "production"
+                ]
+            )
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    #import "ViewController.h"
+    #import <MetaMapSDK/MetaMapSDK.h>
+    
+    @implementation ViewController
+    
+    -(void)metaMapButtonAction:(UIButton *)sender {
+        [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                             flowId:@"YOUR_FLOW_ID" 
+                                           metadata:@{
+                                               // Color customization
+                                               @"buttonColor": @"#007AFF",
+                                               @"buttonTextColor": @"#FFFFFF",
+                                               
+                                               // Language
+                                               @"fixedLanguage": @"es",
+                                               
+                                               // Custom fonts
+                                               @"regularFont": @"Roboto-Regular.ttf",
+                                               @"boldFont": @"Roboto-Bold.ttf",
+                                               
+                                               // Custom metadata
+                                               @"userId": @"user-12345",
+                                               @"source": @"ios-app",
+                                               @"environment": @"production"
+                                           }];
+    }
+    
+    @end
+    ```
+  </Tab>
+</Tabs>
+
+## Metadata Parameters Reference
+
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|--------|
+| `buttonColor` | String | Button background color (hex) | `#FFFFFF` |
+| `buttonTextColor` | String | Button text color (hex) | `#000000` |
+| `fixedLanguage` | String | SDK interface language | `en` |
+| `regularFont` | String | Regular font filename | System font |
+| `boldFont` | String | Bold font filename | System font |
+| `identityId` | String | Existing identity ID for re-verification | - |
+| `encryptionConfigurationId` | String | Encryption configuration ID | - |
+
+## Best Practices
+
+1. **Color Contrast**: Ensure sufficient contrast between button color and text color for accessibility
+2. **Font Files**: Always test custom fonts on device to ensure they load correctly
+3. **Language Selection**: Choose the appropriate language based on user preferences or device locale
+4. **Metadata Size**: Keep custom metadata reasonable in size and avoid sensitive information
+5. **Hex Colors**: Always use the `#` prefix for hex color codes
+
+## Next Steps
+
+- See [UIKit Integration](/ui/uikit-integration) for Swift implementation
+- See [SwiftUI Integration](/ui/swiftui-integration) for SwiftUI implementation
+- See [Objective-C Integration](/ui/objective-c-integration) for Objective-C implementation

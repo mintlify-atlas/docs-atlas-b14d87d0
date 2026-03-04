@@ -1,0 +1,542 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about MetaMap iOS SDK"
+icon: "circle-question"
+---
+
+# Frequently Asked Questions
+
+Common questions and answers about implementing the MetaMap iOS SDK.
+
+## General Questions
+
+<AccordionGroup>
+  <Accordion title="What are the minimum requirements for MetaMap iOS SDK?">
+    The MetaMap iOS SDK requires:
+    - **iOS Version**: iOS 13.0 or higher
+    - **Swift Version**: Swift 5.7
+    - **SDK Download Size**: 30 MB (reduced from 50 MB in version 3.22.5)
+    - **Xcode**: Xcode 14.0 or later recommended
+
+    The SDK supports both Swift and Objective-C implementations, as well as SwiftUI.
+  </Accordion>
+
+  <Accordion title="Which version should I use?">
+    The current **LTS (Long-Term Support)** and latest version is **3.22.8**. This is recommended for all new integrations and provides:
+    - Latest security updates
+    - All new features including Incode SDK integration
+    - Resume verification after interruptions
+    - Best performance and smallest download size
+
+    Always use the latest version unless you have specific compatibility requirements.
+  </Accordion>
+
+  <Accordion title="Is the SDK compatible with SwiftUI?">
+    Yes! The SDK fully supports SwiftUI. You can integrate it using the `MetaMapDelegateObserver` pattern:
+
+    ```swift
+    MetaMapDelegateObserver { identityId, verificationId in
+        print("Success: \(identityId ?? "")")
+    } cancelled: {
+        print("Cancelled")
+    }
+    ```
+
+    See the [Quick Start guide](/quickstart) for complete SwiftUI implementation examples.
+  </Accordion>
+
+  <Accordion title="Can I use the SDK with Objective-C?">
+    Yes, the SDK is fully compatible with Objective-C projects. The SDK provides Objective-C compatible APIs:
+
+    ```objc
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:@{@"key1":@"value"}];
+    ```
+
+    See the documentation for complete Objective-C implementation examples.
+  </Accordion>
+
+  <Accordion title="How large is the SDK download?">
+    The current SDK download size is **30 MB** (as of version 3.22.5).
+
+    Historical size improvements:
+    - Version 3.13.2: Reduced to 3.66 MB
+    - Version 3.22.5: Optimized to 30 MB (from 50 MB)
+
+    The SDK is optimized for mobile networks and includes only essential dependencies.
+  </Accordion>
+</AccordionGroup>
+
+## Installation & Integration
+
+<AccordionGroup>
+  <Accordion title="How do I install the SDK using CocoaPods?">
+    1. Add to your Podfile:
+       ```ruby
+       pod 'MetaMapSDK', '3.22.8'
+       ```
+
+    2. Install:
+       ```bash
+       pod install
+       ```
+
+    3. Import in your code:
+       ```swift
+       import MetaMapSDK
+       ```
+
+    Note: The pod name changed from `MetaMap-ID-SDK` to `MetaMapSDK` in version 3.12.1.
+  </Accordion>
+
+  <Accordion title="What permissions do I need to add to Info.plist?">
+    Add these required permissions to your Info.plist:
+
+    ```xml
+    <key>NSCameraUsageDescription</key>
+    <string>MetaMap needs access to your Camera</string>
+    
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>MetaMap needs access to your media library</string>
+    
+    <key>NSMicrophoneUsageDescription</key>
+    <string>MetaMap needs access to your Microphone</string>
+    
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>MetaMap will use your location information to provide best possible verification experience.</string>
+    
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>MetaMap will use your location information to provide best possible verification experience.</string>
+    
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>MetaMap will use your location information to provide best possible verification experience.</string>
+    ```
+
+    These permissions are required for document capture, selfie verification, liveness checks, and location intelligence features.
+  </Accordion>
+
+  <Accordion title="Do I need to add fonts to my project for customization?">
+    Only if you want to use custom fonts. To use custom fonts:
+
+    1. Add font files (.ttf or .otf) to your Xcode project
+    2. Add fonts to Info.plist:
+       ```xml
+       <key>UIAppFonts</key>
+       <array>
+           <string>YourFont-Regular.ttf</string>
+           <string>YourFont-Bold.ttf</string>
+       </array>
+       ```
+    3. Reference in metadata:
+       ```swift
+       metadata: [
+           "regularFont": "YourFont-Regular.ttf",
+           "boldFont": "YourFont-Bold.ttf"
+       ]
+       ```
+
+    If you don't specify custom fonts, the SDK will use default system fonts.
+  </Accordion>
+
+  <Accordion title="Can I test on the iOS Simulator?">
+    Yes, but with limitations:
+    - Document upload from gallery works
+    - Camera features have limited functionality
+    - Liveness detection requires a physical device
+    - Location services may behave differently
+
+    For production-quality testing, always use physical iOS devices. Testing on iPad is also recommended if you support tablet devices.
+  </Accordion>
+</AccordionGroup>
+
+## Configuration & Customization
+
+<AccordionGroup>
+  <Accordion title="How do I customize the button colors?">
+    Use metadata parameters when calling `showMetaMapFlow`:
+
+    ```swift
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "buttonColor": "#FF5733",      // Button background
+            "buttonTextColor": "#FFFFFF"   // Button text
+        ]
+    )
+    ```
+
+    Use hex color format (e.g., "#FF5733"). Full color customization support was added in version 3.16.1.
+  </Accordion>
+
+  <Accordion title="What languages are supported?">
+    The SDK supports the following languages:
+    - English ("en") - default
+    - Spanish ("es")
+    - French ("fr")
+    - Portuguese ("pt")
+    - Russian ("ru")
+    - Turkish ("tr")
+    - German ("de")
+    - Italian ("it")
+    - Polish ("pl")
+    - Thai ("th")
+
+    Set language via metadata:
+    ```swift
+    metadata: ["fixedLanguage": "es"]
+    ```
+
+    By default (version 3.8.9+), the SDK uses the device's language if supported.
+  </Accordion>
+
+  <Accordion title="Can I remove the 'Powered by MetaMap' branding?">
+    Yes, this feature was added in version 3.16.1. Contact MetaMap support to enable this configuration for your account. The option is controlled via your flow configuration in the MetaMap dashboard, not via SDK code.
+  </Accordion>
+
+  <Accordion title="Does the SDK support dark mode?">
+    Yes! Dark mode support was added in version 3.10.1 and is fully supported in all subsequent versions including 3.22.8.
+
+    The SDK automatically adapts to the device's appearance settings. No additional configuration is required - dark mode works out of the box.
+  </Accordion>
+
+  <Accordion title="How do I pass custom metadata?">
+    Pass any custom data through the metadata parameter:
+
+    ```swift
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "userId": "12345",
+            "accountType": "premium",
+            "customField": 123,
+            "fixedLanguage": "es",
+            "buttonColor": "#FF5733"
+        ]
+    )
+    ```
+
+    Metadata can include strings, numbers, and other JSON-compatible values. This data is attached to the verification and accessible via webhooks and API.
+  </Accordion>
+</AccordionGroup>
+
+## Verification Features
+
+<AccordionGroup>
+  <Accordion title="How do I implement re-verification for existing users?">
+    To re-verify an existing identity, pass the `identityId` in metadata:
+
+    ```swift
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: ["identityId": "existing-identity-id"]
+    )
+    ```
+
+    Re-verification features were added in version 3.14.0. The identity must exist and be in a re-verifiable state.
+  </Accordion>
+
+  <Accordion title="Can users resume verification after app interruption?">
+    Yes! Version 3.22.4 added support for resuming verification after interruptions such as:
+    - Phone calls
+    - App backgrounding
+    - System alerts
+
+    This works automatically - no additional code required. The SDK maintains verification state and allows users to continue where they left off.
+  </Accordion>
+
+  <Accordion title="What document types are supported?">
+    The SDK supports various document types based on your flow configuration:
+    - National ID cards
+    - Passports
+    - Driver's licenses (including Brazilian driver's licenses)
+    - Proof of residency documents
+    - Multi-page PDFs (version 3.20.1+)
+
+    Document types and subtypes are configured in your MetaMap dashboard flow settings. Version 3.9.1+ added document subtype selection.
+  </Accordion>
+
+  <Accordion title="Does the SDK support liveness detection?">
+    Yes, the SDK supports multiple liveness detection methods:
+    - **Passive liveness**: Face mask and lens checks (version 3.22.2+)
+    - **Active liveness**: Video recording with face detection
+    - **Voice liveness**: Audio recording verification
+    - **Incode SDK integration**: Enhanced selfie and liveness verification (version 3.22.0+)
+
+    Liveness methods are configured in your flow settings. Recording automatically stops after 20 seconds (version 3.11.0).
+  </Accordion>
+
+  <Accordion title="Can I skip certain verification steps?">
+    Yes, certain steps can be skipped based on flow configuration:
+    - **OTP verification**: Can be skipped in phone verification (version 3.20.1+)
+    - **Document upload**: Skip back functionality (version 3.15.6)
+    - **Document steps**: Configurable in dashboard
+
+    Skip behavior is controlled via your flow configuration in the MetaMap dashboard.
+  </Accordion>
+
+  <Accordion title="Is phone and email verification supported?">
+    Yes! The SDK supports:
+    - Phone number verification with SMS OTP
+    - Email verification
+    - Option to skip OTP screen (version 3.20.1+)
+    - 30-second resend timer for SMS (version 3.9.6)
+
+    Phone verification includes:
+    - Country selection
+    - Country restrictions (version 3.18.2+)
+    - Phone risk verification (version 3.22.3)
+  </Accordion>
+</AccordionGroup>
+
+## Callbacks & Data Handling
+
+<AccordionGroup>
+  <Accordion title="How do I handle verification completion?">
+    Implement the `MetaMapButtonResultDelegate` protocol:
+
+    ```swift
+    extension ViewController: MetaMapButtonResultDelegate {
+        func verificationSuccess(identityId: String?, verificationID: String?) {
+            print("Success!")
+            print("Identity ID: \(identityId ?? "")")
+            print("Verification ID: \(verificationID ?? "")")
+            
+            // Send to your backend for verification
+            // Trigger next step in your flow
+        }
+        
+        func verificationCancelled(identityId: String?, verificationId: String?) {
+            print("User cancelled verification")
+            // Handle cancellation
+        }
+    }
+    ```
+
+    Note: As of version 3.22.7, `verificationCancelled` also receives identityId and verificationId parameters.
+  </Accordion>
+
+  <Accordion title="What's the difference between identityId and verificationID?">
+    - **identityId**: Unique identifier for a user/identity. Remains the same across multiple verifications for the same person. Use this for re-verification.
+    
+    - **verificationID**: Unique identifier for a specific verification session. Changes with each new verification attempt.
+
+    Both are returned in the success callback. Store `identityId` to track users long-term, and `verificationID` to track individual verification sessions.
+  </Accordion>
+
+  <Accordion title="How do I verify the results on my backend?">
+    After receiving the success callback:
+
+    1. Send `identityId` and `verificationID` to your backend
+    2. Use MetaMap's REST API to verify:
+       ```bash
+       GET https://api.getmati.com/v2/identities/{identityId}
+       Authorization: Bearer YOUR_API_TOKEN
+       ```
+    3. Check verification status and extracted data
+    4. Optionally set up webhooks for real-time verification updates
+
+    Never trust client-side verification alone - always verify on your backend for security.
+  </Accordion>
+
+  <Accordion title="Are verification callbacks always called?">
+    Yes, as long as:
+    - You set the delegate before calling `showMetaMapFlow`:
+      ```swift
+      MetaMapButtonResult.shared.delegate = self
+      ```
+    - Your view controller/class conforms to `MetaMapButtonResultDelegate`
+    - The object is still in memory when verification completes
+
+    For SwiftUI, ensure `MetaMapDelegateObserver` is properly initialized in your view hierarchy.
+  </Accordion>
+</AccordionGroup>
+
+## Security & Privacy
+
+<AccordionGroup>
+  <Accordion title="Is data encrypted during transmission?">
+    Yes, all data is encrypted during transmission using industry-standard HTTPS/TLS protocols.
+
+    Additionally, version 3.14.1 added support for encryption configuration:
+    ```swift
+    metadata: ["encryptionConfigurationId": "your-config-id"]
+    ```
+
+    Contact MetaMap support to configure encryption settings for your account.
+  </Accordion>
+
+  <Accordion title="Where is verification data stored?">
+    Verification data is securely stored on MetaMap's servers and is accessible via:
+    - MetaMap Dashboard
+    - REST API
+    - Webhooks
+
+    Data retention policies are configurable in your account settings. The SDK itself does not persistently store sensitive verification data locally.
+  </Accordion>
+
+  <Accordion title="Does the SDK work with VPN or behind firewalls?">
+    The SDK generally works with VPNs, but:
+    - IP restrictions (if configured) may block certain VPNs
+    - Version 3.13.0 shows IP restriction errors before the start screen
+    - WebSocket connections must be allowed for real-time features
+
+    If users experience issues:
+    - Check IP whitelist settings in dashboard
+    - Ensure firewall allows connections to MetaMap servers
+    - Test without VPN if problems persist
+  </Accordion>
+
+  <Accordion title="What analytics does the SDK collect?">
+    The SDK collects analytics for:
+    - Verification flow progress
+    - Error events and types
+    - Performance metrics
+    - User actions within the SDK
+
+    Analytics are used to:
+    - Improve SDK performance
+    - Debug issues (via Sentry integration)
+    - Provide insights in your dashboard
+
+    No personally identifiable information is collected outside of the verification flow. Version 3.9.8 added identity ID to analytic events for better tracking.
+  </Accordion>
+</AccordionGroup>
+
+## Platform-Specific Questions
+
+<AccordionGroup>
+  <Accordion title="Does the SDK work on iPad?">
+    Yes! The SDK fully supports iPad. Recent improvements include:
+    - Version 3.22.3: Fixed active liveness orientation capture on iPad
+    - Version 3.9.0: Fixed crashes specific to iPad
+    - Proper support for all iPad screen sizes and orientations
+
+    Always test on actual iPad devices to ensure proper layout and functionality.
+  </Accordion>
+
+  <Accordion title="Is there a size limit for uploaded documents?">
+    While specific file size limits depend on your flow configuration:
+    - Standard images: Typically up to 10MB per image
+    - PDFs: Multi-page support added in version 3.20.1
+    - Large files may take longer to upload on slower connections
+
+    The SDK automatically optimizes images for upload while maintaining quality sufficient for verification.
+  </Accordion>
+
+  <Accordion title="Can I use the SDK in a cross-platform app?">
+    Yes! MetaMap provides SDKs and plugins for:
+    - **React Native**: Official plugin available
+    - **Flutter**: Official plugin available (updated in version 3.9.3)
+    - **Capacitor**: Official plugin available (updated in version 3.9.3)
+    - **Cordova**: Official plugin available
+
+    Each platform has its own integration guide. Visit the MetaMap documentation for platform-specific instructions.
+  </Accordion>
+
+  <Accordion title="What happens if the user's internet connection drops?">
+    Version 3.8.9 added comprehensive internet disconnect handling:
+    - Clear error screens when connection is lost
+    - Ability to retry when connection is restored
+    - Automatic detection of network status
+
+    The SDK gracefully handles:
+    - WiFi to cellular transitions
+    - Complete connection loss
+    - Slow or unstable connections
+
+    Users can typically resume after connection is restored.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The delegate methods are not being called, what should I check?">
+    Common issues:
+
+    1. **Delegate not set before showing flow**:
+       ```swift
+       MetaMapButtonResult.shared.delegate = self  // Set BEFORE showMetaMapFlow
+       MetaMap.shared.showMetaMapFlow(...)
+       ```
+
+    2. **Protocol not implemented**:
+       ```swift
+       extension ViewController: MetaMapButtonResultDelegate {
+           // Implement both methods
+       }
+       ```
+
+    3. **Object deallocated**: Ensure your view controller remains in memory during verification
+
+    4. **For SwiftUI**: Verify `MetaMapDelegateObserver` is in your view hierarchy
+
+    See the [troubleshooting guide](/resources/troubleshooting) for more details.
+  </Accordion>
+
+  <Accordion title="I'm getting a pod install error, how do I fix it?">
+    Try these steps in order:
+
+    1. Update CocoaPods:
+       ```bash
+       sudo gem install cocoapods
+       ```
+
+    2. Clear cache and reinstall:
+       ```bash
+       pod cache clean --all
+       pod deintegrate
+       pod install
+       ```
+
+    3. Update repository:
+       ```bash
+       pod repo update
+       ```
+
+    4. Check platform version in Podfile:
+       ```ruby
+       platform :ios, '13.0'
+       ```
+
+    See the [troubleshooting guide](/resources/troubleshooting) for more solutions.
+  </Accordion>
+
+  <Accordion title="Where can I find error codes and their meanings?">
+    Error codes are displayed on error screens (version 3.10.0+). Common approaches:
+
+    1. Check the error message shown in the SDK UI
+    2. Review console logs for detailed error information
+    3. Check MetaMap dashboard for verification status
+    4. Contact MetaMap support with specific error codes
+
+    Version 3.10.0 added error codes/IDs to all error screens for easier debugging.
+  </Accordion>
+
+  <Accordion title="How do I report bugs or request features?">
+    1. Check existing issues: [GitHub Issues](https://github.com/GetMetaMap/metamap-ios-sdk/issues)
+    2. Search for similar problems or requests
+    3. If not found, create a new issue with:
+       - SDK version
+       - iOS version and device model
+       - Steps to reproduce
+       - Expected vs actual behavior
+       - Error logs if applicable
+
+    You can also contact MetaMap support directly for urgent issues.
+  </Accordion>
+</AccordionGroup>
+
+## Getting More Help
+
+If your question isn't answered here:
+
+- Check the [Troubleshooting Guide](/resources/troubleshooting)
+- Review the [Migration Guide](/resources/migration-guide) for version-specific changes
+- See the [Changelog](/resources/changelog) for recent updates
+- Visit [GitHub Issues](https://github.com/GetMetaMap/metamap-ios-sdk/issues)
+- Contact MetaMap support with detailed information about your use case

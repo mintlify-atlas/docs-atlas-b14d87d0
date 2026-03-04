@@ -1,0 +1,313 @@
+---
+title: "Objective-C Integration"
+description: "Complete guide to integrating MetaMap SDK with Objective-C applications"
+---
+
+## Overview
+
+This guide shows you how to integrate the MetaMap SDK into your Objective-C-based iOS application using the `MetaMapButton` component.
+
+## Prerequisites
+
+- MetaMap SDK installed via CocoaPods
+- iOS 13.0 or later
+- Xcode with Objective-C support
+
+## Implementation
+
+### Complete Objective-C Example
+
+Here's a complete implementation of MetaMap verification in Objective-C:
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+
+@property (nonatomic, strong) MetaMapButton *metaMapButton;
+
+@end
+
+@implementation ViewController
+
+  - (void)viewDidLoad {
+      [super viewDidLoad];
+
+      //init button
+      self.metaMapButton = [[MetaMapButton alloc] init];
+
+      //add action to yours button
+        [self.metaMapButton addTarget:self action:@selector(metaMapButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+
+      //set view of button
+      self.metaMapButton.frame = CGRectMake(20, self.view.frame.size.height/2 - 25, self.view.frame.size.width - 40, 50);
+      self.metaMapButton.center = self.view.center;
+
+       //add button to yours view
+      [self.view addSubview:self.metaMapButton];
+
+      //set delegate to get result
+      [MetaMapButtonResult shared].delegate = self;
+  }
+
+  //add showMetaMapFlow function with YOURS parameters
+  -(void)metaMapButtonAction:(UIButton *) sender{
+      [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" flowId:@"YOUR_FLOW_ID"  metadata:@{@"key1":@"value"}];
+}
+
+#pragma mark - MetaMapButtonResultDelegate
+
+  -(void)verificationSuccessWithIdentityId:(NSString *)identityId, verificationID(NSString *) {
+      NSLog(@"Success: $@", identityId);
+  }
+
+  - (void)verificationCancelled {
+      NSLog(@"Cancelled");
+  }
+
+@end;
+```
+
+## Step-by-Step Implementation
+
+### 1. Import MetaMap SDK
+
+Add the import statement to your view controller header or implementation file:
+
+```objc
+#import <MetaMapSDK/MetaMapSDK.h>
+```
+
+### 2. Declare Protocol Conformance
+
+In your interface, declare that your view controller conforms to `MetaMapButtonResultDelegate`:
+
+```objc
+@interface ViewController () <MetaMapButtonResultDelegate>
+
+@property (nonatomic, strong) MetaMapButton *metaMapButton;
+
+@end
+```
+
+### 3. Initialize MetaMapButton
+
+In your `viewDidLoad` method, initialize the button:
+
+```objc
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //init button
+    self.metaMapButton = [[MetaMapButton alloc] init];
+}
+```
+
+### 4. Add Button Action
+
+Connect the button to an action handler:
+
+```objc
+[self.metaMapButton addTarget:self 
+                      action:@selector(metaMapButtonAction:) 
+            forControlEvents:UIControlEventTouchUpInside];
+```
+
+### 5. Configure Button Layout
+
+Set the button's frame and add it to your view:
+
+```objc
+//set view of button
+self.metaMapButton.frame = CGRectMake(20, 
+                                      self.view.frame.size.height/2 - 25, 
+                                      self.view.frame.size.width - 40, 
+                                      50);
+self.metaMapButton.center = self.view.center;
+
+//add button to yours view
+[self.view addSubview:self.metaMapButton];
+```
+
+### 6. Set Delegate
+
+Assign the delegate to receive verification results:
+
+```objc
+[MetaMapButtonResult shared].delegate = self;
+```
+
+### 7. Launch Verification Flow
+
+Implement the button action method to launch the verification flow:
+
+```objc
+-(void)metaMapButtonAction:(UIButton *)sender {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:@{@"key1":@"value"}];
+}
+```
+
+## Handling Results
+
+Implement the `MetaMapButtonResultDelegate` protocol methods to handle verification results:
+
+### Success Callback
+
+```objc
+#pragma mark - MetaMapButtonResultDelegate
+
+-(void)verificationSuccessWithIdentityId:(NSString *)identityId 
+                          verificationID:(NSString *)verificationID {
+    NSLog(@"Success: %@", identityId);
+    // Handle successful verification
+}
+```
+
+### Cancellation Callback
+
+```objc
+- (void)verificationCancelled {
+    NSLog(@"Cancelled");
+    // Handle cancellation
+}
+```
+
+## Swift vs Objective-C Comparison
+
+<Tabs>
+  <Tab title="Swift">
+    ```swift
+    import MetaMapSDK
+    
+    class ViewController: UIViewController {
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            setupMetaMapButton()
+        }
+        
+        private func setupMetaMapButton() {
+            let metaMapButton = MetaMapButton()
+            metaMapButton.addTarget(self, 
+                                   action: #selector(metaMapButtonAction), 
+                                   for: .touchUpInside)
+            metaMapButton.frame = CGRect(x: 20, 
+                                        y: view.frame.size.height/2 - 50, 
+                                        width: view.frame.size.width - 40, 
+                                        height: 50)
+            view.addSubview(metaMapButton)
+            MetaMapButtonResult.shared.delegate = self
+        }
+        
+        @objc private func metaMapButtonAction() {
+            MetaMap.shared.showMetaMapFlow(
+                clientId: "YOUR_CLIENT_ID",
+                flowId: "YOUR_FLOW_ID",
+                metadata: ["key1": "value1"]
+            )
+        }
+    }
+    
+    extension ViewController: MetaMapButtonResultDelegate {
+        func verificationSuccess(identityId: String?, verificationID: String?) {
+            print("Success: \(identityId ?? "")")
+        }
+        
+        func verificationCancelled() {
+            print("Cancelled")
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="Objective-C">
+    ```objc
+    #import <MetaMapSDK/MetaMapSDK.h>
+    
+    @interface ViewController () <MetaMapButtonResultDelegate>
+    @property (nonatomic, strong) MetaMapButton *metaMapButton;
+    @end
+    
+    @implementation ViewController
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        
+        self.metaMapButton = [[MetaMapButton alloc] init];
+        [self.metaMapButton addTarget:self 
+                              action:@selector(metaMapButtonAction:) 
+                    forControlEvents:UIControlEventTouchUpInside];
+        
+        self.metaMapButton.frame = CGRectMake(20, 
+                                              self.view.frame.size.height/2 - 25, 
+                                              self.view.frame.size.width - 40, 
+                                              50);
+        self.metaMapButton.center = self.view.center;
+        [self.view addSubview:self.metaMapButton];
+        
+        [MetaMapButtonResult shared].delegate = self;
+    }
+    
+    -(void)metaMapButtonAction:(UIButton *)sender {
+        [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                             flowId:@"YOUR_FLOW_ID" 
+                                           metadata:@{@"key1":@"value"}];
+    }
+    
+    #pragma mark - MetaMapButtonResultDelegate
+    
+    -(void)verificationSuccessWithIdentityId:(NSString *)identityId 
+                              verificationID:(NSString *)verificationID {
+        NSLog(@"Success: %@", identityId);
+    }
+    
+    - (void)verificationCancelled {
+        NSLog(@"Cancelled");
+    }
+    
+    @end
+    ```
+  </Tab>
+</Tabs>
+
+## Parameters
+
+### showMetaMapFlowWithClientId Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `clientId` | NSString* | Yes | Your MetaMap client ID |
+| `flowId` | NSString* | Yes | The verification flow ID |
+| `metadata` | NSDictionary* | No | Additional metadata and customization options |
+
+## Metadata Dictionary
+
+The metadata parameter accepts an `NSDictionary` with optional customization values:
+
+```objc
+NSDictionary *metadata = @{
+    @"key1": @"value1",
+    @"key2": @"value2",
+    @"buttonColor": @"#FF5733",
+    @"buttonTextColor": @"#FFFFFF",
+    @"fixedLanguage": @"es"
+};
+
+[MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                     flowId:@"YOUR_FLOW_ID" 
+                                   metadata:metadata];
+```
+
+## Best Practices
+
+1. **Memory Management**: Use `strong` property attribute for the `metaMapButton` property
+2. **Delegate Lifecycle**: Set the delegate in `viewDidLoad` and clear it in `dealloc` if needed
+3. **Button Positioning**: Consider using Auto Layout constraints instead of manual frame calculations
+4. **Error Handling**: Always implement both delegate methods to handle success and cancellation
+
+## Next Steps
+
+- Learn about [UI Customization](/ui/customization) options
+- Explore [UIKit Integration](/ui/uikit-integration) for Swift
+- See [SwiftUI Integration](/ui/swiftui-integration)

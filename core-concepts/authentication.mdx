@@ -1,0 +1,190 @@
+---
+title: "Authentication"
+description: "Learn how to authenticate your MetaMap iOS SDK integration with clientId and flowId parameters"
+---
+
+## Overview
+
+Authentication in the MetaMap iOS SDK requires two essential parameters to initialize the verification flow: `clientId` and `flowId`. These credentials connect your application to your MetaMap account and specify which verification flow to execute.
+
+## Required Parameters
+
+<ParamField path="clientId" type="string" required>
+  Your unique MetaMap client identifier. This authenticates your application with the MetaMap platform and links verification sessions to your account.
+  
+  **Where to find it:** Available in your MetaMap Dashboard under Settings > API Keys
+</ParamField>
+
+<ParamField path="flowId" type="string" required>
+  The identifier for the specific verification flow you want to execute. Each flow defines the verification steps, document types, and user journey.
+  
+  **Format:** Alphanumeric string (e.g., `"7e8zf446aa5b5e001a7769d0"`)
+  
+  **Where to find it:** Created in your MetaMap Dashboard under Flows section
+</ParamField>
+
+## Basic Implementation
+
+Here's how to implement authentication in your iOS application:
+
+### Swift
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.setupMetaMapButton()
+    }
+    
+    private func setupMetaMapButton() {
+        let metaMapButton = MetaMapButton()
+        metaMapButton.addTarget(self, action: #selector(self.metaMapButtonAction), for: .touchUpInside)
+        metaMapButton.frame = CGRect(x: 20, y: self.view.frame.size.height/2 - 50, width: view.frame.size.width - 40, height: 50)
+        view.addSubview(metaMapButton)
+        
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    @objc private func metaMapButtonAction() {
+        // Initialize verification flow with authentication credentials
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: nil
+        )
+    }
+}
+```
+
+### Objective-C
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+@property (nonatomic, strong) MetaMapButton *metaMapButton;
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.metaMapButton = [[MetaMapButton alloc] init];
+    [self.metaMapButton addTarget:self action:@selector(metaMapButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.metaMapButton.frame = CGRectMake(20, self.view.frame.size.height/2 - 25, self.view.frame.size.width - 40, 50);
+    [self.view addSubview:self.metaMapButton];
+    
+    [MetaMapButtonResult shared].delegate = self;
+}
+
+-(void)metaMapButtonAction:(UIButton *)sender {
+    // Initialize verification flow with authentication credentials
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                         metadata:nil];
+}
+
+@end
+```
+
+## Obtaining Your Credentials
+
+### Getting Your Client ID
+
+1. Log in to your [MetaMap Dashboard](https://dashboard.metamap.com)
+2. Navigate to **Settings** > **API Keys**
+3. Copy your **Client ID** (different from your Secret Key)
+4. Replace `"YOUR_CLIENT_ID"` in the code with this value
+
+<Note>
+  Keep your Client ID secure. While it's used in client-side code, it should not be committed to public repositories. Consider using environment variables or secure configuration management.
+</Note>
+
+### Getting Your Flow ID
+
+1. In your MetaMap Dashboard, go to the **Flows** section
+2. Select the verification flow you want to use, or create a new one
+3. Copy the **Flow ID** from the flow details
+4. Replace `"YOUR_FLOW_ID"` in the code with this value
+
+<Tip>
+  You can create multiple flows for different use cases (e.g., basic identity verification, enhanced due diligence, document-only verification). Each flow will have its own unique Flow ID.
+</Tip>
+
+## Advanced Configuration Options
+
+The `showMetaMapFlow` method accepts additional optional parameters:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    configurationId: nil,  // Optional: UI configuration ID
+    encryptionConfigurationId: nil,  // Optional: Encryption settings
+    metadata: ["key": "value"]  // Optional: Additional metadata
+)
+```
+
+<ParamField path="configurationId" type="string">
+  Optional configuration ID for custom UI settings and branding.
+</ParamField>
+
+<ParamField path="encryptionConfigurationId" type="string">
+  Optional encryption configuration ID for enhanced data security. Use this to encrypt sensitive verification data with your custom encryption settings.
+</ParamField>
+
+## Security Best Practices
+
+<Warning>
+  **Never hardcode production credentials directly in your source code.** Use secure configuration management tools or environment-specific configuration files that are not committed to version control.
+</Warning>
+
+### Recommended Approach
+
+```swift
+// Use a configuration manager or plist file
+struct MetaMapConfig {
+    static let clientId = Bundle.main.object(forInfoDictionaryKey: "MetaMapClientID") as? String ?? ""
+    static let flowId = Bundle.main.object(forInfoDictionaryKey: "MetaMapFlowID") as? String ?? ""
+}
+
+// Usage
+MetaMap.shared.showMetaMapFlow(
+    clientId: MetaMapConfig.clientId,
+    flowId: MetaMapConfig.flowId,
+    metadata: nil
+)
+```
+
+## Troubleshooting
+
+### Invalid Client ID Error
+
+If you receive an authentication error:
+- Verify the Client ID is correct and copied entirely
+- Ensure you're using the Client ID, not the Secret Key
+- Check that your MetaMap account is active
+
+### Flow Not Found Error
+
+If the flow doesn't initialize:
+- Confirm the Flow ID exists in your dashboard
+- Verify the flow is published and not in draft mode
+- Ensure the flow is compatible with your SDK version
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Verification Flows" icon="diagram-project" href="/core-concepts/flows">
+    Learn about multi-flow support and flow configuration
+  </Card>
+  <Card title="Metadata" icon="tags" href="/core-concepts/metadata">
+    Customize verification with metadata parameters
+  </Card>
+</CardGroup>

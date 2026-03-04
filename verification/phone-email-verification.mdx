@@ -1,0 +1,429 @@
+---
+title: "Phone and Email Verification"
+description: "Implement phone number and email verification with OTP flow in the MetaMap iOS SDK"
+---
+
+## Overview
+
+Phone and email verification in the MetaMap iOS SDK provides secure contact information validation through one-time password (OTP) flows. Users receive verification codes via SMS or email and enter them to confirm their contact details.
+
+## Verification Types
+
+<CardGroup cols={2}>
+  <Card title="Phone Verification" icon="mobile">
+    SMS-based verification with OTP code and country code selection
+  </Card>
+  <Card title="Email Verification" icon="envelope">
+    Email-based verification with OTP code sent to user's inbox
+  </Card>
+</CardGroup>
+
+## Phone Verification
+
+### Features
+
+- **Country Selection**: Choose from supported countries with automatic country code
+- **Phone Risk Validation**: Automatic validation of phone number risk factors
+- **OTP Delivery**: Secure SMS delivery of verification codes
+- **Resend Code**: 30-second timer before allowing code resend
+- **Skip OTP Option**: Optional skip functionality for specific flows
+
+### Implementation
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class PhoneVerificationViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupMetaMap()
+    }
+    
+    private func setupMetaMap() {
+        MetaMapButtonResult.shared.delegate = self
+        
+        // Start phone verification flow
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+}
+
+extension PhoneVerificationViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("Phone verification completed: \(verificationID ?? "")")
+        // Handle successful verification
+    }
+    
+    func verificationCancelled() {
+        print("Phone verification cancelled")
+        // Handle cancellation
+    }
+}
+```
+
+### Country Code Selection
+
+The SDK provides an automatic country selector:
+
+- Searchable country list
+- Flag icons for visual identification  
+- Automatic phone number formatting
+- Country restrictions support
+
+<Note>
+Country selection does not auto-select based on country restrictions. Users must manually choose their country from the allowed list.
+</Note>
+
+### Phone Risk Verification
+
+The SDK includes phone risk validation to detect:
+- Disposable phone numbers
+- VoIP numbers
+- Invalid phone formats
+- High-risk phone patterns
+
+## Email Verification
+
+### Features
+
+- **Email Format Validation**: Automatic email format checking
+- **Whitespace Detection**: Auto-corrects whitespace characters in email input
+- **OTP Delivery**: Verification code sent to email inbox
+- **Resend Functionality**: Request new code after timer expires
+
+### Implementation
+
+```swift
+// Email verification uses the same implementation
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [:]
+)
+
+// The flow configuration determines whether
+// phone or email verification is shown
+```
+
+<Note>
+Email input automatically detects and corrects whitespace characters to prevent common input errors.
+</Note>
+
+## OTP Flow
+
+### Step-by-Step Process
+
+1. **Enter Contact Information**
+   - User enters phone number or email address
+   - Input validation occurs in real-time
+   - Submit button becomes active when valid
+
+2. **Receive Verification Code**
+   - OTP code sent via SMS or email
+   - Code typically arrives within seconds
+   - Loading screen shown during delivery
+
+3. **Enter OTP Code**
+   - User enters received code
+   - Automatic validation on submission
+   - Error shown if code is incorrect
+
+4. **Verification Complete**
+   - Success callback triggered
+   - User can proceed with verification flow
+
+### Code Resend
+
+Users can request a new verification code:
+
+- **Timer**: 30-second cooldown between resend requests
+- **Automatic Reset**: Timer resets after successful code entry
+- **Visual Indicator**: Countdown timer displayed to user
+
+<Note>
+The resend code timer was reduced to 30 seconds in version 3.9.6 to improve user experience.
+</Note>
+
+## Skip OTP Screen
+
+For specific flows, the OTP verification screen can be skipped:
+
+```swift
+// Skip OTP configuration is set in your flow settings
+// No additional SDK code required
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [:]
+)
+```
+
+<Warning>
+Skipping OTP verification reduces security. Only enable this option when alternative verification methods are in place.
+</Warning>
+
+## Country Restrictions
+
+### Phone Verification
+
+Restrict phone verification to specific countries:
+
+- Configure allowed countries in flow settings
+- Country list automatically filters to restrictions
+- Prevents verification from blocked regions
+
+```swift
+// Country restrictions are configured in your MetaMap flow
+// The SDK automatically applies these restrictions
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [:]
+)
+```
+
+## Complete Implementation Example
+
+### Swift with Error Handling
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ContactVerificationViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupMetaMapButton()
+    }
+    
+    private func setupMetaMapButton() {
+        // Initialize MetaMap button
+        let metaMapButton = MetaMapButton()
+        metaMapButton.addTarget(
+            self,
+            action: #selector(startVerification),
+            for: .touchUpInside
+        )
+        
+        // Configure button appearance
+        metaMapButton.frame = CGRect(
+            x: 20,
+            y: view.frame.size.height/2 - 25,
+            width: view.frame.size.width - 40,
+            height: 50
+        )
+        
+        view.addSubview(metaMapButton)
+        
+        // Set delegate for results
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    @objc private func startVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+}
+
+extension ContactVerificationViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        guard let verificationID = verificationID else {
+            handleError(message: "Verification completed but no ID received")
+            return
+        }
+        
+        print("Contact verified successfully")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID)")
+        
+        // Store verification details
+        saveVerificationDetails(identityId: identityId, verificationID: verificationID)
+        
+        // Navigate to next screen
+        navigateToNextScreen()
+    }
+    
+    func verificationCancelled() {
+        print("User cancelled verification")
+        showCancellationAlert()
+    }
+    
+    private func saveVerificationDetails(identityId: String?, verificationID: String) {
+        // Save to UserDefaults, Keychain, or your backend
+        UserDefaults.standard.set(verificationID, forKey: "metaMapVerificationID")
+        if let identityId = identityId {
+            UserDefaults.standard.set(identityId, forKey: "metaMapIdentityID")
+        }
+    }
+    
+    private func navigateToNextScreen() {
+        // Your navigation logic
+    }
+    
+    private func showCancellationAlert() {
+        let alert = UIAlertController(
+            title: "Verification Cancelled",
+            message: "You need to verify your contact information to continue.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Retry", style: .default) { _ in
+            self.startVerification()
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func handleError(message: String) {
+        print("Error: \(message)")
+    }
+}
+```
+
+### SwiftUI Implementation
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct ContactVerificationView: View {
+    @State private var isVerified = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Contact Verification")
+                .font(.title)
+            
+            if isVerified {
+                Text("✓ Verified")
+                    .foregroundColor(.green)
+                    .font(.headline)
+            }
+            
+            MetaMapDelegateObserver { identityId, verificationId in
+                handleSuccess(identityId: identityId, verificationId: verificationId)
+            } cancelled: {
+                handleCancellation()
+            }
+            
+            Button("Verify Phone/Email") {
+                startVerification()
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+        .alert(alertMessage, isPresented: $showAlert) {
+            Button("OK", role: .cancel) { }
+        }
+    }
+    
+    private func startVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+    
+    private func handleSuccess(identityId: String?, verificationId: String?) {
+        isVerified = true
+        alertMessage = "Contact verification successful!"
+        showAlert = true
+        print("Verified: \(identityId ?? ""), \(verificationId ?? "")")
+    }
+    
+    private func handleCancellation() {
+        alertMessage = "Verification was cancelled"
+        showAlert = true
+    }
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**OTP Not Received**
+- Check phone number or email is correctly entered
+- Verify SMS service is not blocked
+- Check spam folder for email codes
+- Use resend code after 30 seconds
+
+**Invalid Code Error**
+- Ensure code is entered correctly (check for spaces)
+- Verify code hasn't expired (typically 10 minutes)
+- Request new code if needed
+
+**Country Selection Issues**
+- Verify country is in allowed list
+- Check country restrictions in flow settings
+- Search functionality available for long country lists
+
+**Resend Timer Frozen**
+- Issue was fixed in version 3.11.3
+- Update to latest SDK version
+
+<Note>
+If issues persist, check the MetaMap dashboard for verification logs and error details.
+</Note>
+
+## Best Practices
+
+1. **Clear Instructions**: Explain why verification is needed
+2. **Format Guidance**: Show example phone number format
+3. **Error Messages**: Provide helpful feedback for invalid inputs
+4. **Resend Option**: Make resend button clearly visible
+5. **Timeout Handling**: Guide users if code expires
+6. **Privacy Notice**: Explain how contact information is used
+
+## Re-verification
+
+For returning users who need to update their contact information:
+
+```swift
+// Use existing identity ID for re-verification
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["identityId": "existing_identity_id"]
+)
+```
+
+## Customization
+
+Customize the verification UI:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "buttonColor": "#007AFF",
+        "buttonTextColor": "#FFFFFF",
+        "fixedLanguage": "en"
+    ]
+)
+```
+
+## Version History
+
+- **v3.22.3**: Handled phone risk verification
+- **v3.20.1**: Added skip OTP screen option for phone verification
+- **v3.19.0**: Added support for skipping OTP screen
+- **v3.18.2**: Country restrictions don't auto-select country
+- **v3.11.3**: Fixed resend code timer freeze issue
+- **v3.10.0**: Refactored phone/email verification flow
+- **v3.9.6**: Reduced SMS resend time to 30 seconds
+- **v3.9.4**: Fixed whitespace detection in email input

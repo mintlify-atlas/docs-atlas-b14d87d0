@@ -1,0 +1,432 @@
+---
+title: "Metadata"
+description: "Customize verification behavior and appearance using metadata parameters in the MetaMap iOS SDK"
+---
+
+## Overview
+
+The `metadata` parameter is an optional dictionary that allows you to customize the verification experience, pass additional data, and configure SDK behavior. Metadata can be used for UI customization, analytics tracking, user identification, and more.
+
+## Basic Usage
+
+Metadata is passed as a dictionary when initializing the verification flow:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "key1": "value1",
+        "key2": 123,
+        "key3": true
+    ]
+)
+```
+
+### Objective-C Example
+
+```objc
+[MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                     flowId:@"YOUR_FLOW_ID" 
+                                   metadata:@{
+                                       @"key1": @"value1",
+                                       @"key2": @123,
+                                       @"key3": @YES
+                                   }];
+```
+
+## Built-in Metadata Parameters
+
+The MetaMap SDK recognizes several built-in metadata keys that control specific functionality:
+
+### Language Configuration
+
+<ParamField path="fixedLanguage" type="string">
+  Sets the SDK interface language. By default, the SDK uses English (`"en"`).
+  
+  **Supported languages:**
+  - `"en"` - English
+  - `"es"` - Spanish
+  - `"fr"` - French
+  - `"pt"` - Portuguese
+  - `"ru"` - Russian
+  - `"tr"` - Turkish
+  - `"de"` - German
+  - `"it"` - Italian
+  - `"pl"` - Polish
+  - `"th"` - Thai
+</ParamField>
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["fixedLanguage": "es"]  // Spanish
+)
+```
+
+### UI Customization
+
+<ParamField path="buttonColor" type="string">
+  Customizes the primary button color using hexadecimal color format.
+  
+  **Format:** `"#RRGGBB"` (e.g., `"#FF5733"`)
+  
+  **Default:** White (`"#FFFFFF"`)
+</ParamField>
+
+<ParamField path="buttonTextColor" type="string">
+  Customizes the button text color using hexadecimal color format.
+  
+  **Format:** `"#RRGGBB"` (e.g., `"#000000"`)
+  
+  **Default:** Black (`"#000000"`)
+</ParamField>
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "buttonColor": "#007AFF",      // iOS blue
+        "buttonTextColor": "#FFFFFF"   // White text
+    ]
+)
+```
+
+### Custom Fonts
+
+<ParamField path="regularFont" type="string">
+  Specifies a custom font file for regular text. The font file must be included in your app bundle.
+  
+  **Format:** Font filename with extension (e.g., `"CustomFont-Regular.ttf"`)
+</ParamField>
+
+<ParamField path="boldFont" type="string">
+  Specifies a custom font file for bold text. The font file must be included in your app bundle.
+  
+  **Format:** Font filename with extension (e.g., `"CustomFont-Bold.ttf"`)
+</ParamField>
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "regularFont": "Montserrat-Regular.ttf",
+        "boldFont": "Montserrat-Bold.ttf"
+    ]
+)
+```
+
+<Note>
+  To use custom fonts, ensure the font files are added to your Xcode project and included in the `Info.plist` under the `Fonts provided by application` key.
+</Note>
+
+### Re-verification
+
+<ParamField path="identityId" type="string">
+  Links the verification session to an existing identity. Use this for re-verification scenarios when a user needs to update expired documents or provide additional information.
+  
+  The `identityId` is returned in the `verificationSuccess` callback from previous verifications.
+</ParamField>
+
+```swift
+func startReverification(existingIdentityId: String) {
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: ["identityId": existingIdentityId]
+    )
+}
+```
+
+### Encryption Configuration
+
+<ParamField path="encryptionConfigurationId" type="string">
+  Specifies an encryption configuration ID for encrypting sensitive verification data. This provides an additional layer of security for highly sensitive applications.
+  
+  Encryption configurations are created in your MetaMap Dashboard.
+</ParamField>
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["encryptionConfigurationId": "YOUR_ENCRYPTION_CONFIG_ID"]
+)
+```
+
+## Custom Metadata
+
+Beyond the built-in parameters, you can pass any custom key-value pairs in metadata for your own tracking and analytics purposes. This data is stored with the verification session and can be retrieved via the MetaMap API.
+
+### Common Use Cases
+
+<CardGroup cols={2}>
+  <Card title="User Identification" icon="user">
+    Link verification to your internal user ID
+  </Card>
+  <Card title="Analytics Tracking" icon="chart-line">
+    Track verification source, campaign, or referral
+  </Card>
+  <Card title="Session Context" icon="clock">
+    Store timestamp, app version, or device info
+  </Card>
+  <Card title="Business Logic" icon="briefcase">
+    Pass data for custom backend processing
+  </Card>
+</CardGroup>
+
+### Practical Examples
+
+#### User Tracking
+
+```swift
+func startVerification(for user: User) {
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "userId": user.id,
+            "email": user.email,
+            "accountType": user.accountType,
+            "registrationDate": user.registrationDate
+        ]
+    )
+}
+```
+
+#### Analytics and Attribution
+
+```swift
+func startVerificationWithAnalytics() {
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "source": "mobile_app",
+            "campaign": "summer_2024_promo",
+            "referralCode": "FRIEND123",
+            "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+            "platform": "iOS",
+            "deviceModel": UIDevice.current.model
+        ]
+    )
+}
+```
+
+#### Session Information
+
+```swift
+func startVerificationWithContext() {
+    let timestamp = Date().timeIntervalSince1970
+    let sessionId = UUID().uuidString
+    
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "sessionId": sessionId,
+            "timestamp": timestamp,
+            "timezone": TimeZone.current.identifier,
+            "locale": Locale.current.identifier
+        ]
+    )
+}
+```
+
+#### Geographic Information
+
+```swift
+func startVerificationWithLocation(country: String, region: String) {
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "country": country,
+            "region": region,
+            "ipAddress": getUserIPAddress(),
+            "geoCompliance": "GDPR"  // or "CCPA", etc.
+        ]
+    )
+}
+```
+
+## Complete Configuration Example
+
+Here's a comprehensive example combining multiple metadata parameters:
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class VerificationViewController: UIViewController {
+    
+    private let user: User
+    
+    init(user: User) {
+        self.user = user
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    func startVerification() {
+        var metadata: [String: Any] = [
+            // Built-in UI customization
+            "fixedLanguage": Locale.current.languageCode ?? "en",
+            "buttonColor": "#007AFF",
+            "buttonTextColor": "#FFFFFF",
+            
+            // User identification
+            "userId": user.id,
+            "email": user.email,
+            
+            // Analytics
+            "source": "ios_app",
+            "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+            
+            // Session context
+            "sessionId": UUID().uuidString,
+            "timestamp": Date().timeIntervalSince1970,
+            
+            // Business logic
+            "accountTier": user.tier,
+            "verificationReason": "account_upgrade"
+        ]
+        
+        // Add re-verification identity if available
+        if let existingIdentityId = user.metamapIdentityId {
+            metadata["identityId"] = existingIdentityId
+        }
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: metadata
+        )
+    }
+}
+
+extension VerificationViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        // Store identity ID for future re-verification
+        if let identityId = identityId {
+            user.metamapIdentityId = identityId
+            saveUser(user)
+        }
+        
+        print("Verification successful")
+    }
+    
+    func verificationCancelled() {
+        print("Verification cancelled")
+    }
+    
+    private func saveUser(_ user: User) {
+        // Implementation for saving user data
+    }
+}
+```
+
+## Retrieving Metadata
+
+Metadata passed during verification is stored with the verification session and can be retrieved:
+
+1. **Via MetaMap Dashboard**: View metadata in the verification details
+2. **Via MetaMap API**: Fetch verification data including metadata
+3. **Via Webhooks**: Receive metadata in webhook payloads
+
+<Tip>
+  Use consistent naming conventions for your custom metadata keys to make data analysis and retrieval easier. Consider using a prefix (e.g., `"app_userId"`, `"app_sessionId"`) to distinguish your custom fields.
+</Tip>
+
+## Data Types and Limitations
+
+Metadata values can be:
+- **Strings**: Text values
+- **Numbers**: Integers and floating-point numbers
+- **Booleans**: True/false values
+- **Nested dictionaries**: For structured data
+
+```swift
+metadata: [
+    "stringValue": "text",
+    "intValue": 42,
+    "floatValue": 3.14,
+    "boolValue": true,
+    "nestedData": [
+        "subKey1": "subValue1",
+        "subKey2": 100
+    ]
+]
+```
+
+<Warning>
+  Avoid passing sensitive data (passwords, credit card numbers, etc.) in metadata. While metadata is transmitted securely, it's not designed for storing highly sensitive information. Use the `encryptionConfigurationId` parameter for sensitive data encryption.
+</Warning>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep Metadata Lean">
+    Only include data that's necessary for your use case. Excessive metadata can increase payload size and slow down verification initialization.
+  </Accordion>
+  
+  <Accordion title="Use Consistent Key Names">
+    Establish naming conventions for metadata keys and use them consistently across your app. This makes data retrieval and analysis much easier.
+  </Accordion>
+  
+  <Accordion title="Validate Data Before Passing">
+    Ensure metadata values are in the correct format and non-null before passing to the SDK. Invalid data can cause unexpected behavior.
+  </Accordion>
+  
+  <Accordion title="Document Your Custom Metadata">
+    Maintain documentation of which metadata keys your app uses and what they represent. This is especially important for team projects.
+  </Accordion>
+  
+  <Accordion title="Test UI Customization">
+    When using UI customization metadata (colors, fonts), test thoroughly on different devices and iOS versions to ensure compatibility.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Custom Fonts Not Appearing
+
+- Verify font files are added to your Xcode project
+- Check that fonts are listed in `Info.plist` under `Fonts provided by application`
+- Ensure the font file names in metadata match exactly (including extension)
+- Try building and running on a physical device (simulator may behave differently)
+
+### Metadata Not Appearing in Dashboard
+
+- Confirm the verification was completed successfully
+- Check that metadata keys don't conflict with reserved system keys
+- Verify the data types are supported (strings, numbers, booleans)
+- Allow a few moments for data to sync to the dashboard
+
+### Language Not Changing
+
+- Ensure the language code is one of the supported values
+- Check for typos in the language code (case-sensitive)
+- Verify `fixedLanguage` is spelled correctly in the metadata dictionary
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Delegates" icon="webhook" href="/core-concepts/delegates">
+    Learn how to handle verification results with delegates
+  </Card>
+  <Card title="Authentication" icon="key" href="/core-concepts/authentication">
+    Understand clientId and flowId parameters
+  </Card>
+</CardGroup>

@@ -1,0 +1,365 @@
+---
+title: "Migration Guide"
+description: "Guide for upgrading MetaMap iOS SDK between major versions"
+icon: "arrow-up-right-dots"
+---
+
+# Migration Guide
+
+This guide helps you upgrade your MetaMap iOS SDK integration between major versions and handle breaking changes.
+
+## Current Version
+
+The latest stable version is **3.22.8**, which is both the LTS (Long-Term Support) and current version.
+
+## Upgrading to 3.22.x
+
+### From 3.21.x to 3.22.x
+
+#### What's New
+- `createVerificationCallback` added (3.22.8)
+- Resume verification after interruptions (3.22.4)
+- Enhanced liveness checks with face mask and lens detection (3.22.2)
+- Incode SDK integration for selfie and document verification (3.22.0)
+
+#### Breaking Changes
+- **identityId parameter**: Version 3.22.7 added `identityId` and `verificationId` parameters to the `verificationCancelled` method.
+
+  **Before (3.21.x):**
+  ```swift
+  func verificationCancelled() {
+      print("Verification cancelled")
+  }
+  ```
+
+  **After (3.22.7+):**
+  ```swift
+  func verificationCancelled(identityId: String?, verificationId: String?) {
+      print("Verification cancelled: \(identityId ?? ""), \(verificationId ?? "")")
+  }
+  ```
+
+#### Migration Steps
+
+1. Update your Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.22.8'
+   ```
+
+2. Run pod install:
+   ```bash
+   pod install
+   ```
+
+3. Update your delegate implementation if using `verificationCancelled`:
+   ```swift
+   extension ViewController: MetaMapButtonResultDelegate {
+       func verificationSuccess(identityId: String?, verificationID: String?) {
+           print("Success: \(identityId ?? "")")
+       }
+       
+       func verificationCancelled(identityId: String?, verificationId: String?) {
+           print("Cancelled: \(identityId ?? ""), \(verificationId ?? "")")
+       }
+   }
+   ```
+
+4. Test interruption scenarios (phone calls, app backgrounding) to verify resume functionality.
+
+## Upgrading to 3.20.x
+
+### From 3.19.x to 3.20.x
+
+#### What's New
+- Updated user consent flow
+- Multi-page PDF upload support in document verification
+- Option to skip OTP screen in phone verification
+
+#### No Breaking Changes
+This is a backward-compatible update. Simply update your Podfile and run `pod install`.
+
+#### Migration Steps
+
+1. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.20.1'
+   ```
+
+2. If using phone verification, you can now skip OTP via flow configuration (no code changes needed).
+
+## Upgrading to 3.18.x
+
+### From 3.17.x to 3.18.x
+
+#### What's New
+- Dynamic input support
+- Enhanced customization for pre-load and shimmering screens
+- Font and color customization for dynamic input screens
+- Updated Sentry to 8.18.0
+
+#### Migration Steps
+
+1. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.18.2'
+   ```
+
+2. If you previously had Sentry conflicts, version 3.18.1 resolves vulnerabilities. No code changes required.
+
+3. To customize dynamic input screens, add metadata:
+   ```swift
+   metadata: [
+       "buttonColor": "#YOUR_COLOR",
+       "buttonTextColor": "#YOUR_COLOR",
+       "regularFont": "YourFont-Regular.ttf",
+       "boldFont": "YourFont-Bold.ttf"
+   ]
+   ```
+
+## Upgrading to 3.16.x
+
+### From 3.15.x to 3.16.x
+
+#### What's New
+- Full font customization support
+- Comprehensive color customization
+- Option to remove "Powered by MetaMap" branding
+
+#### Migration Steps
+
+1. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.16.1'
+   ```
+
+2. Add custom fonts to your project:
+   - Add font files to your Xcode project
+   - Update Info.plist:
+     ```xml
+     <key>UIAppFonts</key>
+     <array>
+         <string>YourFont-Regular.ttf</string>
+         <string>YourFont-Bold.ttf</string>
+     </array>
+     ```
+
+3. Apply fonts via metadata:
+   ```swift
+   MetaMap.shared.showMetaMapFlow(
+       clientId: "YOUR_CLIENT_ID",
+       flowId: "YOUR_FLOW_ID",
+       metadata: [
+           "regularFont": "YourFont-Regular.ttf",
+           "boldFont": "YourFont-Bold.ttf"
+       ]
+   )
+   ```
+
+## Upgrading to 3.14.x
+
+### From 3.13.x to 3.14.x
+
+#### What's New
+- Idemia SDK integration via WebView
+- Encryption configuration ID parameter
+- PRS (Personal Risk Score) support
+- Smart capture with Vision
+- Re-usage and revision features
+
+#### New Features to Implement
+
+1. **Encryption Configuration** (if needed):
+   ```swift
+   metadata: ["encryptionConfigurationId": "your-config-id"]
+   ```
+
+2. **Re-verification**:
+   ```swift
+   metadata: ["identityId": "existing-identity-id"]
+   ```
+
+3. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.14.2'
+   ```
+
+## Upgrading to 3.13.x
+
+### From 3.12.x to 3.13.x
+
+#### What's New
+- Video agreement feature support
+- Complete UI redesign for all verification steps
+- Updated Socket.io to version .three
+- IP restriction displayed before start screen
+
+#### Breaking Changes
+Major UI redesign may affect custom styling expectations. Review your app's integration to ensure visual consistency.
+
+#### Migration Steps
+
+1. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.13.2'
+   ```
+
+2. Test all verification flows to ensure the new UI meets your expectations.
+
+3. Note: SDK download size reduced to 3.66 MB in version 3.13.2.
+
+## Upgrading to 3.12.x
+
+### From 3.11.x to 3.12.x
+
+#### Breaking Changes
+- **Podspec name change**: `MetaMap-ID-SDK.podspec` renamed to `MetaMapSDK.podspec`
+
+#### Migration Steps
+
+1. Update your Podfile:
+   
+   **Before:**
+   ```ruby
+   pod 'MetaMap-ID-SDK', '3.11.x'
+   ```
+
+   **After:**
+   ```ruby
+   pod 'MetaMapSDK', '3.12.1'
+   ```
+
+2. Run:
+   ```bash
+   pod deintegrate
+   pod install
+   ```
+
+3. Clean build folder in Xcode (Shift + Cmd + K)
+
+4. No code changes required in your implementation.
+
+## Upgrading to 3.10.x
+
+### From 3.9.x to 3.10.x
+
+#### What's New
+- Dark mode support
+- Country restriction enable mode
+- Error codes/IDs added to error screens
+- Complete UI refactoring
+
+#### Migration Steps
+
+1. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.10.1'
+   ```
+
+2. Test your app in both light and dark mode:
+   - Open Settings > Developer > Dark Appearance
+   - Or use Xcode's environment override
+
+3. Verify error handling displays proper error codes.
+
+## Upgrading to 3.9.x (Mati → MetaMap Rebrand)
+
+### From 3.8.x to 3.9.x
+
+#### Breaking Changes
+- **Major rebrand from Mati to MetaMap** (version 3.9.3)
+- Class names remain the same for backward compatibility
+- Visual branding updated throughout SDK
+
+#### Migration Steps
+
+1. Update Podfile:
+   ```ruby
+   pod 'MetaMapSDK', '3.9.11'
+   ```
+
+2. Update Info.plist descriptions to reference MetaMap:
+   ```xml
+   <key>NSCameraUsageDescription</key>
+   <string>MetaMap needs access to your Camera</string>
+   ```
+
+3. No code changes required - SDK maintains API compatibility.
+
+4. String resources now use "metaMap_" prefix (version 3.9.11).
+
+## Best Practices for Migration
+
+### Pre-Migration Checklist
+
+- [ ] Review the [changelog](/resources/changelog) for your target version
+- [ ] Check minimum requirements:
+  - iOS 13.0+
+  - Swift 5.7+
+  - Xcode 14.0+
+- [ ] Backup your project or commit to version control
+- [ ] Test on a development environment first
+
+### Testing After Migration
+
+1. **Clean Build**:
+   ```bash
+   pod deintegrate
+   pod cache clean --all
+   pod install
+   ```
+   Then clean build folder in Xcode.
+
+2. **Test Core Flows**:
+   - SDK initialization
+   - Document verification
+   - Selfie/liveness verification
+   - Phone/email verification
+   - Flow completion and callbacks
+
+3. **Test Edge Cases**:
+   - Network disconnection during verification
+   - App backgrounding and resumption
+   - Permission denials
+   - Different device orientations (especially on iPad)
+
+4. **Test UI Customizations**:
+   - Custom colors
+   - Custom fonts
+   - Dark mode appearance
+   - Localization in different languages
+
+### Rollback Plan
+
+If issues occur after migration:
+
+1. Revert Podfile to previous version:
+   ```ruby
+   pod 'MetaMapSDK', 'PREVIOUS_VERSION'
+   ```
+
+2. Run:
+   ```bash
+   pod install
+   ```
+
+3. Clean build and test.
+
+4. Report issues to [GitHub](https://github.com/GetMetaMap/metamap-ios-sdk/issues).
+
+## Version Support Policy
+
+- **LTS Version**: 3.22.8 - Recommended for production use
+- **Current Version**: 3.22.8 - Latest features and fixes
+- **Minimum Supported**: We recommend staying within 3 major versions of the current release
+
+## Getting Help
+
+If you encounter issues during migration:
+
+1. Check the [troubleshooting guide](/resources/troubleshooting)
+2. Review [GitHub issues](https://github.com/GetMetaMap/metamap-ios-sdk/issues)
+3. Contact MetaMap support with:
+   - Current SDK version
+   - Target SDK version
+   - Migration steps attempted
+   - Error logs or unexpected behavior

@@ -1,0 +1,360 @@
+---
+title: "Verification Flows"
+description: "Understand verification flows, multi-flow support, and flow configuration in the MetaMap iOS SDK"
+---
+
+## What are Verification Flows?
+
+Verification flows define the complete user journey through the identity verification process. Each flow specifies:
+
+- Which documents to collect (passport, driver's license, etc.)
+- Verification steps (selfie, liveness check, address verification)
+- User interface customization
+- Data validation rules
+- Compliance requirements
+
+Flows are created and configured in your MetaMap Dashboard, allowing you to manage the verification experience without modifying your app code.
+
+## Basic Flow Implementation
+
+### Single Flow
+
+The most common implementation uses a single verification flow:
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    @objc private func startVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: nil
+        )
+    }
+}
+
+extension ViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("Verification completed successfully")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+    }
+    
+    func verificationCancelled() {
+        print("User cancelled verification")
+    }
+}
+```
+
+## Multi-Flow Support
+
+The MetaMap iOS SDK supports multiple verification flows within a single application. This is useful when you need different verification levels for different user scenarios.
+
+### Use Cases for Multiple Flows
+
+<CardGroup cols={2}>
+  <Card title="Tiered Verification" icon="layer-group">
+    Basic verification for standard users, enhanced verification for premium accounts
+  </Card>
+  <Card title="Document Types" icon="id-card">
+    Different flows for different document types (passport vs. driver's license)
+  </Card>
+  <Card title="Regional Compliance" icon="globe">
+    Region-specific verification requirements based on user location
+  </Card>
+  <Card title="Re-verification" icon="arrows-rotate">
+    Simplified flow for users updating expired documents
+  </Card>
+</CardGroup>
+
+### Implementing Multiple Flows
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class VerificationViewController: UIViewController {
+    
+    enum VerificationLevel {
+        case basic
+        case enhanced
+        case document
+        
+        var flowId: String {
+            switch self {
+            case .basic:
+                return "5e8zf446aa5b5e001a7769d0"
+            case .enhanced:
+                return "7e8zf446aa5b5e001a7769d1"
+            case .document:
+                return "9e8zf446aa5b5e001a7769d2"
+            }
+        }
+    }
+    
+    private func startVerification(level: VerificationLevel) {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: level.flowId,
+            metadata: [
+                "verificationType": "\(level)",
+                "timestamp": Date().timeIntervalSince1970
+            ]
+        )
+    }
+    
+    @IBAction func basicVerificationTapped(_ sender: UIButton) {
+        startVerification(level: .basic)
+    }
+    
+    @IBAction func enhancedVerificationTapped(_ sender: UIButton) {
+        startVerification(level: .enhanced)
+    }
+    
+    @IBAction func documentOnlyTapped(_ sender: UIButton) {
+        startVerification(level: .document)
+    }
+}
+
+extension VerificationViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        // Handle successful verification
+        guard let identityId = identityId else { return }
+        
+        // Store the identity ID for future reference
+        UserDefaults.standard.set(identityId, forKey: "metamap_identity_id")
+        
+        // Notify your backend
+        notifyBackend(identityId: identityId, verificationID: verificationID)
+    }
+    
+    func verificationCancelled() {
+        // Handle cancellation
+        showAlert(title: "Verification Cancelled", message: "Please complete verification to continue.")
+    }
+    
+    private func notifyBackend(identityId: String, verificationID: String?) {
+        // Implementation for backend notification
+    }
+    
+    private func showAlert(title: String, message: String) {
+        // Implementation for showing alert
+    }
+}
+```
+
+### Objective-C Multi-Flow Example
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+@end
+
+@implementation ViewController
+
+- (void)startBasicVerification {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"5e8zf446aa5b5e001a7769d0" 
+                                       metadata:@{@"type": @"basic"}];
+}
+
+- (void)startEnhancedVerification {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"7e8zf446aa5b5e001a7769d1" 
+                                       metadata:@{@"type": @"enhanced"}];
+}
+
+#pragma mark - MetaMapButtonResultDelegate
+
+- (void)verificationSuccessWithIdentityId:(NSString *)identityId 
+                           verificationID:(NSString *)verificationID {
+    NSLog(@"Verification Success: %@", identityId);
+}
+
+- (void)verificationCancelled {
+    NSLog(@"Verification Cancelled");
+}
+
+@end
+```
+
+## Flow Configuration
+
+Flows are configured in your MetaMap Dashboard. Here are the key configuration options:
+
+### Document Collection
+
+- **Document Types**: Passport, national ID, driver's license, residence permit
+- **Document Countries**: Specify which countries' documents are accepted
+- **Number of Documents**: Single or multiple document collection
+
+### Verification Steps
+
+- **Selfie Capture**: Optional or required
+- **Liveness Detection**: Active or passive liveness checks
+- **Address Verification**: Proof of address document collection
+- **Additional Data**: Custom fields for collecting extra information
+
+### UI Customization
+
+- **Branding**: Custom colors, logos, and fonts
+- **Language**: Default language and available languages
+- **Instructions**: Custom text for each verification step
+
+<Tip>
+  Use the `metadata` parameter to pass flow-specific configuration at runtime. This allows dynamic behavior without creating multiple flows.
+</Tip>
+
+## Dynamic Flow Selection
+
+You can select flows dynamically based on user attributes or business logic:
+
+```swift
+class VerificationManager {
+    
+    func selectFlow(for user: User) -> String {
+        // Select flow based on user attributes
+        if user.isPremium {
+            return "enhanced_flow_id"
+        } else if user.isReturning {
+            return "reverification_flow_id"
+        } else {
+            return "standard_flow_id"
+        }
+    }
+    
+    func startVerification(for user: User) {
+        let flowId = selectFlow(for: user)
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: flowId,
+            metadata: [
+                "userId": user.id,
+                "accountType": user.accountType,
+                "country": user.country
+            ]
+        )
+    }
+}
+```
+
+## Re-verification Flow
+
+For users who need to update their verification (e.g., expired documents), pass the existing `identityId` in metadata:
+
+```swift
+func startReverification() {
+    guard let existingIdentityId = UserDefaults.standard.string(forKey: "metamap_identity_id") else {
+        // Start fresh verification
+        startNewVerification()
+        return
+    }
+    
+    MetaMap.shared.showMetaMapFlow(
+        clientId: "YOUR_CLIENT_ID",
+        flowId: "YOUR_FLOW_ID",
+        metadata: [
+            "identityId": existingIdentityId  // Link to existing identity
+        ]
+    )
+}
+```
+
+<Note>
+  When re-verifying with an existing `identityId`, the new verification will be linked to the previous identity record in the MetaMap Dashboard, maintaining the user's verification history.
+</Note>
+
+## Flow State Management
+
+Track which flows users have completed:
+
+```swift
+class FlowTracker {
+    
+    enum FlowStatus: String {
+        case notStarted
+        case inProgress
+        case completed
+        case failed
+    }
+    
+    func updateFlowStatus(flowId: String, status: FlowStatus, identityId: String?) {
+        let key = "flow_\(flowId)_status"
+        UserDefaults.standard.set(status.rawValue, forKey: key)
+        
+        if let identityId = identityId {
+            UserDefaults.standard.set(identityId, forKey: "flow_\(flowId)_identityId")
+        }
+    }
+    
+    func getFlowStatus(flowId: String) -> FlowStatus {
+        let key = "flow_\(flowId)_status"
+        guard let statusString = UserDefaults.standard.string(forKey: key),
+              let status = FlowStatus(rawValue: statusString) else {
+            return .notStarted
+        }
+        return status
+    }
+}
+
+extension ViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        FlowTracker().updateFlowStatus(
+            flowId: currentFlowId,
+            status: .completed,
+            identityId: identityId
+        )
+    }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choose the Right Flow for Each Use Case">
+    Don't create a one-size-fits-all flow. Different user scenarios may require different verification levels. Use multiple flows to optimize the user experience and compliance requirements.
+  </Accordion>
+  
+  <Accordion title="Test Flows in Sandbox Mode">
+    Always test new flows in your MetaMap sandbox environment before deploying to production. This allows you to verify the user experience without affecting real users.
+  </Accordion>
+  
+  <Accordion title="Use Metadata for Flow Context">
+    Pass relevant context in the metadata parameter to track which flows users complete and why. This data helps with analytics and debugging.
+  </Accordion>
+  
+  <Accordion title="Handle Flow Updates Gracefully">
+    When you update a flow in the dashboard, existing SDK integrations will automatically use the new configuration. Test changes carefully to ensure backward compatibility.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Flow Not Loading
+
+- Verify the flow ID is correct
+- Ensure the flow is published (not in draft mode)
+- Check that the flow is compatible with your SDK version
+
+### Wrong Flow Appearing
+
+- Confirm you're passing the correct flow ID for the scenario
+- Check for hardcoded flow IDs that should be dynamic
+- Verify flow selection logic is working as expected
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Metadata" icon="tags" href="/core-concepts/metadata">
+    Learn how to customize flows with metadata
+  </Card>
+  <Card title="Delegates" icon="webhook" href="/core-concepts/delegates">
+    Handle verification results with delegate callbacks
+  </Card>
+</CardGroup>

@@ -1,80 +1,334 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Complete guide to implement MetaMap iOS SDK verification flow in your application"
 ---
 
-## Get started in three steps
+This quickstart guide will walk you through implementing a complete MetaMap verification flow in your iOS app using UIKit.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+<Check>
+  Before starting, ensure you have:
+  - Completed the [Installation](/installation) guide
+  - Your MetaMap **Client ID** from the dashboard
+  - Your **Flow ID** for the verification flow you want to use
+  - Required permissions configured in `Info.plist`
+</Check>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Implementation Steps
+
+<Steps>
+  <Step title="Import MetaMap SDK">
+    Open your `ViewController.swift` file and import the MetaMap SDK:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```swift ViewController.swift
+    import UIKit
+    import MetaMapSDK
+    ```
+  </Step>
+  
+  <Step title="Setup MetaMap Button">
+    Create and configure the MetaMap button in your view controller. Add this code to your `ViewController` class:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```swift ViewController.swift
+    class ViewController: UIViewController {
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            self.setupMetaMapButton()
+        }
+        
+        private func setupMetaMapButton() {
+            // Initialize the MetaMap button
+            let metaMapButton = MetaMapButton()
+            
+            // Add button action
+            metaMapButton.addTarget(
+                self,
+                action: #selector(self.metaMapButtonAction),
+                for: .touchUpInside
+            )
+            
+            // Configure button layout
+            metaMapButton.frame = CGRect(
+                x: 20,
+                y: self.view.frame.size.height/2 - 50,
+                width: view.frame.size.width - 40,
+                height: 50
+            )
+            
+            // Add button to view
+            view.addSubview(metaMapButton)
+            
+            // Set delegate to receive verification results
+            MetaMapButtonResult.shared.delegate = self
+        }
+    }
+    ```
+    
+    <Note>
+      The `MetaMapButton` comes with default MetaMap branding. You can customize its appearance using metadata (see [Customization](#customization) below).
+    </Note>
+  </Step>
+  
+  <Step title="Launch Verification Flow">
+    Add the action handler that launches the MetaMap verification flow when the button is tapped:
+    
+    ```swift ViewController.swift
+    @objc private func metaMapButtonAction() {
+        // Launch MetaMap verification flow
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["key1": "value1", "key2": 123]
+        )
+    }
+    ```
+    
+    <Warning>
+      Replace `YOUR_CLIENT_ID` and `YOUR_FLOW_ID` with your actual credentials from the MetaMap dashboard.
+    </Warning>
+  </Step>
+  
+  <Step title="Handle Verification Results">
+    Implement the `MetaMapButtonResultDelegate` to handle verification callbacks:
+    
+    ```swift ViewController.swift
+    // MARK: - MetaMapButtonResultDelegate
+    extension ViewController: MetaMapButtonResultDelegate {
+        
+        func verificationSuccess(identityId: String?, verificationID: String?) {
+            print("MetaMap Verification Success")
+            print("Identity ID: \(identityId ?? "N/A")")
+            print("Verification ID: \(verificationID ?? "N/A")")
+            
+            // Handle successful verification
+            // Example: Navigate to next screen, update UI, send to backend
+        }
+        
+        func verificationCancelled() {
+            print("MetaMap Verification Cancelled")
+            
+            // Handle cancellation
+            // Example: Show message to user, log analytics event
+        }
+    }
+    ```
+    
+    <Tip>
+      Store the `identityId` and `verificationID` to check verification status on your backend or query the MetaMap API.
+    </Tip>
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Complete Example
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Here's the complete working implementation:
 
-### Step 3: Go live
+```swift ViewController.swift
+import UIKit
+import MetaMapSDK
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+class ViewController: UIViewController {
 
-## Next steps
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.setupMetaMapButton()
+    }
 
-Now that you have your docs running, explore these key features:
+    private func setupMetaMapButton() {
+        // Init button
+        let metaMapButton = MetaMapButton()
 
-<CardGroup cols={2}>
+        // Add button action
+        metaMapButton.addTarget(
+            self,
+            action: #selector(self.metaMapButtonAction),
+            for: .touchUpInside
+        )
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+        // Set view of button
+        metaMapButton.frame = CGRect(
+            x: 20,
+            y: self.view.frame.size.height/2 - 50,
+            width: view.frame.size.width - 40,
+            height: 50
+        )
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+        // Add button to your view
+        view.addSubview(metaMapButton)
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+        // Set delegate to get result
+        MetaMapButtonResult.shared.delegate = self
+    }
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+    @objc private func metaMapButtonAction() {
+        // Set params to showMetaMapFlow
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["key1": "value1", "key2": 123]
+        )
+    }
+}
 
-</CardGroup>
+// MARK: - MetaMapButtonResultDelegate
+extension ViewController: MetaMapButtonResultDelegate {
+
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("MetaMap Verification Success \(identityId ?? "")")
+    }
+
+    func verificationCancelled() {
+        print("MetaMap Verification Cancelled")
+    }
+}
+```
+
+## Customization
+
+The `metadata` parameter allows you to customize the SDK behavior and appearance:
+
+### Set Language
+
+By default, the SDK uses English. You can set a fixed language:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["fixedLanguage": "es"] // Spanish
+)
+```
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Supported languages: `en`, `es`, `fr`, `pt`, `ru`, `tr`, `de`, `it`, `pl`, `th`
 </Note>
+
+### Customize Button Colors
+
+Customize the button appearance to match your app's design:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "buttonColor": "#FF5733",      // Background color (hex)
+        "buttonTextColor": "#FFFFFF"   // Text color (hex)
+    ]
+)
+```
+
+### Re-verification Flow
+
+For returning users, pass their existing identity ID:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["identityId": "existing-identity-id"]
+)
+```
+
+### Enable Encryption
+
+For enhanced security, use an encryption configuration:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["encryptionConfigurationId": "your-config-id"]
+)
+```
+
+### Custom Fonts
+
+Use your app's custom fonts (ensure font files are included in your project):
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "regularFont": "CustomFont-Regular.ttf",
+        "boldFont": "CustomFont-Bold.ttf"
+    ]
+)
+```
+
+## Testing Your Integration
+
+<Steps>
+  <Step title="Build and Run">
+    Build and run your app on a physical iOS device (camera access is limited in simulator):
+    
+    ```bash
+    # Select your device in Xcode, then:
+    # Product > Run (⌘ + R)
+    ```
+  </Step>
+  
+  <Step title="Grant Permissions">
+    When prompted, allow camera, photo library, and microphone access.
+  </Step>
+  
+  <Step title="Complete Verification">
+    Tap the MetaMap button and complete the verification flow:
+    - Follow the on-screen instructions
+    - Capture required documents
+    - Complete liveness check
+    - Confirm submission
+  </Step>
+  
+  <Step title="Check Results">
+    Verify that your delegate methods are called:
+    - Check console logs for success/cancellation messages
+    - Verify you receive `identityId` and `verificationID`
+  </Step>
+</Steps>
+
+<Warning>
+  **Test on Physical Device**: The verification flow requires camera access, which is not fully functional in the iOS Simulator. Always test on a real device.
+</Warning>
+
+## Common Metadata Options
+
+Here's a comprehensive example with multiple metadata options:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "fixedLanguage": "en",
+        "buttonColor": "#007AFF",
+        "buttonTextColor": "#FFFFFF",
+        "identityId": "optional-existing-id",
+        "encryptionConfigurationId": "optional-encryption-id",
+        "regularFont": "AppFont-Regular.ttf",
+        "boldFont": "AppFont-Bold.ttf",
+        "userId": "your-internal-user-id",
+        "customParam": "any-custom-value"
+    ]
+)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SwiftUI Integration" icon="swift" href="/ui/swiftui-integration">
+    Learn how to integrate with SwiftUI
+  </Card>
+  <Card title="Advanced Configuration" icon="sliders" href="/advanced/metadata-options">
+    Explore advanced SDK configuration options
+  </Card>
+  <Card title="Handle Results" icon="check-circle" href="/core-concepts/delegates">
+    Learn how to process verification results
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/metamap">
+    View complete API documentation
+  </Card>
+</CardGroup>

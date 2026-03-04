@@ -1,0 +1,161 @@
+---
+title: "Metadata Options"
+description: "Configure MetaMap iOS SDK behavior with metadata parameters"
+---
+
+Metadata is an optional dictionary parameter that allows you to customize the SDK's behavior, appearance, and pass additional data during the verification flow.
+
+## Overview
+
+Metadata is passed to the `showMetaMapFlow` method:
+
+```swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "fixedLanguage": "es",
+        "buttonColor": "#FF5733",
+        "identityId": "existing_identity_id"
+    ]
+)
+```
+
+## Available Metadata Parameters
+
+<ParamField path="fixedLanguage" type="string">
+  Sets the SDK language. By default, the SDK uses English ("en"). Supported languages: "es", "fr", "pt", "ru", "tr", "de", "it", "pl", "th".
+  
+  ```swift
+  metadata: ["fixedLanguage": "es"]
+  ```
+</ParamField>
+
+<ParamField path="buttonColor" type="string">
+  Customizes the main button color using hex color format. Default is white.
+  
+  ```swift
+  metadata: ["buttonColor": "#FF5733"]
+  ```
+</ParamField>
+
+<ParamField path="buttonTextColor" type="string">
+  Customizes the button text color using hex color format. Default is black.
+  
+  ```swift
+  metadata: ["buttonTextColor": "#FFFFFF"]
+  ```
+</ParamField>
+
+<ParamField path="identityId" type="string">
+  Used for re-verification flows. Pass an existing identity ID to update or re-verify a user.
+  
+  ```swift
+  metadata: ["identityId": "existing_identity_id_value"]
+  ```
+</ParamField>
+
+<ParamField path="encryptionConfigurationId" type="string">
+  Enables data encryption by passing an encryption configuration ID from your MetaMap dashboard.
+  
+  ```swift
+  metadata: ["encryptionConfigurationId": "your_encryption_config_id"]
+  ```
+</ParamField>
+
+<ParamField path="regularFont" type="string">
+  Sets a custom regular font. The font file must be included in your project.
+  
+  ```swift
+  metadata: ["regularFont": "CustomFont-Regular.ttf"]
+  ```
+</ParamField>
+
+<ParamField path="boldFont" type="string">
+  Sets a custom bold font. The font file must be included in your project.
+  
+  ```swift
+  metadata: ["boldFont": "CustomFont-Bold.ttf"]
+  ```
+</ParamField>
+
+## Complete Example
+
+### Swift
+
+```swift
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    @objc private func metaMapButtonAction() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [
+                "fixedLanguage": "es",
+                "buttonColor": "#007AFF",
+                "buttonTextColor": "#FFFFFF",
+                "identityId": "existing_user_identity",
+                "encryptionConfigurationId": "enc_config_123",
+                "regularFont": "Roboto-Regular.ttf",
+                "boldFont": "Roboto-Bold.ttf"
+            ]
+        )
+    }
+}
+```
+
+### Objective-C
+
+```objc
+#import <MetaMapSDK/MetaMapSDK.h>
+
+- (void)metaMapButtonAction:(UIButton *)sender {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                         flowId:@"YOUR_FLOW_ID"
+                                       metadata:@{
+        @"fixedLanguage": @"es",
+        @"buttonColor": @"#007AFF",
+        @"buttonTextColor": @"#FFFFFF",
+        @"identityId": @"existing_user_identity",
+        @"encryptionConfigurationId": @"enc_config_123",
+        @"regularFont": @"Roboto-Regular.ttf",
+        @"boldFont": @"Roboto-Bold.ttf"
+    }];
+}
+```
+
+## Custom Fonts
+
+To use custom fonts:
+
+1. Add your font files (.ttf or .otf) to your Xcode project
+2. Include the fonts in your Info.plist under "Fonts provided by application"
+3. Reference the font file names in the metadata
+
+```swift
+metadata: [
+    "regularFont": "YourFont-Regular.ttf",
+    "boldFont": "YourFont-Bold.ttf"
+]
+```
+
+<Warning>
+  If the specified font files are not found in your project, the SDK will fall back to default fonts.
+</Warning>
+
+## Custom Metadata Keys
+
+You can also pass custom key-value pairs for your own tracking or business logic:
+
+```swift
+metadata: [
+    "userId": "12345",
+    "campaignId": "summer_2024",
+    "referralCode": "FRIEND10",
+    "accountType": "premium"
+]
+```
+
+These custom values will be associated with the verification and can be retrieved via the MetaMap API or dashboard.

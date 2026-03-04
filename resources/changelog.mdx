@@ -1,0 +1,496 @@
+---
+title: "Changelog"
+description: "Complete version history and release notes for MetaMap iOS SDK"
+icon: "clock-rotate-left"
+---
+
+# iOS SDK Changelog
+
+This page contains the complete version history of the MetaMap iOS SDK. For issues or feature requests, visit our [GitHub issues page](https://github.com/GetMetaMap/metamap-ios-sdk/issues).
+
+## Version 3.22.8
+
+### New Features
+- Added createVerificationCallback
+
+### Bug Fixes
+- Added identityId in metadata
+
+## Version 3.22.7
+
+### Updated Features
+- Added identityId and verificationId parameters to the verificationCancelled method
+
+## Version 3.22.6
+
+### Bug Fixes
+- Fixed an issue related to Identity Id verification
+
+## Version 3.22.5
+
+### Bug Fixes
+- Fixed an issue related to Brazilian driver's license upload
+- Decreased download SDK size from 50MB to 30MB
+
+## Version 3.22.4
+
+### New Features
+- Resume verification after an interruption
+
+## Version 3.22.3
+
+### Bug Fixes
+- Fixed issue related to active liveness orientation capture (iPad)
+- Handled phone risk verification
+
+## Version 3.22.2
+
+### Updated Features
+- Enable face mask and lens checks for Passive liveness verification step
+
+### Bug Fixes
+- Fixed issue related to dynamic colors on the Start screen
+
+## Version 3.22.0
+
+### New Features
+- Incode SDK implementation for Selfie verification
+- Incode SDK implementation for document National Id and Passport verification
+
+### Updated Features
+- Fixed issue related to Error screen
+- Changed Incode SDK implementation technology
+
+## Version 3.21.1
+
+### New Features
+- Incode SDK implementation for Selfie verification
+- Incode SDK implementation for document National Id and Passport verification
+
+## Version 3.20.1
+
+### Updated Features
+- Updated user consent
+- Added support pdf upload with many pages in Document verification step
+- Added support option for skip OTP screen in Phone verification step
+
+## Version 3.19.0
+
+### Updated Features
+- Added support for skipping OTP screen during phone verification process
+
+### Bug Fixes
+- Fixed UI issue on the document verification document type selection screen
+- Fixed UI issue on the biometric verification flow "retry button was showing twice"
+
+## Version 3.18.2
+
+### Updated Features
+- Phone check validation doesn't select by default the country allow in Country Restrictions
+- Face detection on the realtime video recording - biometric verification
+
+### Bug Fixes
+- Fixed issue related to dependencies integration mechanism
+
+## Version 3.18.1
+
+### Updated Features
+- Updated Sentry - 8.18.0 version
+
+### Bug Fixes
+- Fixed some the vulnerability in the Sentry
+
+## Version 3.18.0
+
+### New Features
+- Support dynamic input
+
+### Updated Features
+- Updated Sentry
+- Support pre-load, shimmering screens color and font customization
+- Support font/color customization for dynamic input screen
+
+### Bug Fixes
+- Fixed issue related to the restrict image upload from gallery
+- Fixed issue on the biometric verification step - record buttons appear second time
+- Fixed issue on the revision feature
+
+## Version 3.17.1
+
+### Bug Fixes
+- Fixed unexpected error handling
+- Fixed UI issue on the documents, proof of residency step
+
+## Version 3.17.0
+
+### New Features
+- Support SDK Cooldown feature
+
+### Bug Fixes
+- Fixed GeoLocation permission button title issue
+
+## Version 3.16.1
+
+### New Features
+- Support fonts customization
+- Support customizable colors
+- Support configuration of removal of Powered by MetaMap
+
+### Bug Fixes
+- Fixed return button logo color
+
+## Version 3.15.6
+
+### New Features
+- Skip Document
+- Handling document occlusion error
+- Face detection to the document from the mobile side
+
+### Bug Fixes
+- Replaced access token key
+
+## Version 3.15.5
+
+### Updated Features
+- Replaced main button title on the camera permission screen
+
+## Version 3.15.4
+
+### Bug Fixes
+- Fixed crash on the iOS 12, 14.0.1 versions
+- Fixed minor UI issue on the document verification step
+
+## Version 3.15.3
+
+### Updated Features
+- Added error screen for unexpected error
+
+### Bug Fixes
+- Fixed UI minor issues
+- Fixing issue related to the MetaMap button/title colors
+- Did UX corrections
+
+## Version 3.15.2
+
+### Updated Features
+- Updated Sentry and fix conflicts between our SDK's Sentry and merchant's Sentry
+
+### Bug Fixes
+- Fixed the issue related to creating verification twice
+- Fixed UI issues
+- Correction passport title
+
+## Version 3.15.1
+
+### Bug Fixes
+- Fixed analytic event title
+
+## Version 3.15.0
+
+### New Features
+- Support reusage for Idemia
+
+### Updated Features
+- Updated Sentry
+- Idemia improvement
+- Changed start screen flow's item logic
+
+### Bug Fixes
+- Fixed encryption configuration id error case
+
+## Version 3.14.2
+
+### Bug Fixes
+- Fixed User-Agent's crash
+
+## Version 3.14.1
+
+### New Features
+- Idemia SDK in webView
+- Added encryptionConfigurationId param
+
+## Version 3.14.0
+
+### New Features
+- Added PRS support
+- Added smart capture feature (Vision)
+- Added configuration Id as params
+- Added re-usage feature
+- Added revision support feature
+
+### Updated Features
+- Added E-Sign touch sign support
+- Updated Sentry
+- Added credit check support for Columbia
+
+### Bug Fixes
+- Fixed issue related to the document subtype list
+
+## Version 3.13.2
+
+### Updated Features
+- Reduced SDK download size to 3.66 MB
+
+## Version 3.13.1
+
+### Bug Fixes
+- Fixed crash on the document verification step
+
+## Version 3.13.0
+
+### New Features
+- Added video agreement feature support
+
+### Updated Features
+- Redesigned Document, Biometric verification, Phone/Email, E-signature, verification steps
+- Redesigned errors, permissions, exit screens
+- Updated to the latest version of Socket.io (.three)
+- IP restriction shows before start screen
+
+### Bug Fixes
+- Fixed issue on the Brazilian driver license back side skip request
+- Corrected VPN try again button behavior
+
+## Version 3.12.1
+
+### Updated Features
+- Replaced MetaMap-ID-SDK.podspec to MetaMapSDK.podspec
+
+### Bug Fixes
+- Fixes UI issue in shimmering screen
+- Fixed crash on the backside document upload
+- Fixing issue on the email/phone verification step
+
+## Version 3.12.0
+*Released: November 25, 2022*
+
+### Updated Features
+- Redesign Location Intelligence flow
+- Added cancel event on the loading close action
+
+### Bug Fixes
+- Fixed crash on the credit check verification Flow
+- Corrected close button image
+- Fixed Search bar logic on countries list screen
+- Fixed issue on IP restriction part
+
+## Version 3.11.3
+*Released: October 28, 2022*
+
+### New Features
+- Added Skeleton loader for Start screen
+
+### Bug Fixes
+- Fixed issue on the Error screen
+- Fixed socket connection ping-pong issue
+- Fixed crash on the voice liveness step
+- Fixed issue on the biometric step
+- Fixed resend code timer
+- Fixed minor UI issues
+
+## Version 3.11.2
+*Released: October 11, 2022*
+
+### Bug Fixes
+- Fixed Country restriction is limiting document upload error
+
+## Version 3.11.0
+*Released: October 6, 2022*
+
+### Updated Features
+- Liveness and VoiceLiveness videos recording will automatically stop on the time limit of 20 seconds
+- Show a meaningful error screen when the initialization of the SDK fails
+
+### Bug Fixes
+- Fixed issue on the upload document error type
+
+## Version 3.10.1
+*Released: September 19, 2022*
+
+### Updated Features
+- Support dark mode
+- Support country restriction enable mode
+
+### Bug Fixes
+- Fixed issue on the CPF screen
+- Fixed issue on the selfie photo screen
+- Fixed verifications completed status for Brazilian Driving License verification
+- Corrected text/Title on the Main screen
+
+## Version 3.10.0
+*Released: September 1, 2022*
+
+### New Features
+- Added support 402/403 errors code
+- Added id to all UI elements
+
+### Updated Features
+- Refactored flows list screen (Main screen)
+- Replaced upload document screen to loading spinner
+- Removed RootViewController
+- Fixed minor layout issues
+- Refactored video/voice liveness screen
+- Added error code/id to the error screens
+- Refactored verification phone/E_mail flow
+
+### Bug Fixes
+- Fixed crash on document upload screen
+- Fixed server error issue
+- Fixed issue related to the country selection when supported country is one
+
+## Version 3.9.11
+*Released: July 22, 2022*
+
+### Updated Features
+- "metaMap_" prefix to string resources in localize
+- Server message of error for incorrect CPF code
+- Documentation of the plugins: added location permission information
+
+### Bug Fixes
+- Fixed issue on the stop video at recording liveness button
+- Corrected no face document leads error
+- Fixed issue on the start screen financial icons
+- Corrected key of localization string on the e-sign screen
+- Changed the Reachability public class to private
+- Fixed crash, on the cancel action on the country list screen
+- Fixed crash after verification finishes
+
+## Version 3.9.10
+*Released: June 28, 2022*
+
+### Bug Fixes
+- Corrected IP address
+
+## Version 3.9.9
+*Released: June 27, 2022*
+
+### New Features
+- Add "metamap_" prefix to string
+
+### Updated Features
+- New Start screen style
+
+### Bug Fixes
+- Added the right error code to the Analytic
+- Fixed issue on the document country restriction
+
+## Version 3.9.8
+*Released: June 10, 2022*
+
+### New Features
+- Replaced metaData dictionary with the object
+
+### Updated Features
+- Event queue for analytics
+- Identity Id to analytic events
+
+### Bug Fixes
+- Fixed issue on the E-sign flow
+- Fixed issue related to the camera permission
+
+## Version 3.9.6
+*Released: May 18, 2022*
+
+### New Features
+- Integration with Geo Location will continue, but with the new architecture
+- New error for selfie validation
+- Support dark mode for iOS SDK
+- Dynamic Terms and Privacy link
+- Permissions basic coordinator
+- Flow management refactor
+- Input data manager refactor
+
+### Updated Features
+- Updated the subtypes for LATAM and Africa
+- Subtypes translations from WS
+- Reduced time resend SMS to 30 seconds
+- New data structure for the web container
+
+### Bug Fixes
+- Fixed issue related to the document upload
+- Fixed issue on the MetaMap button
+- Fixed issue on the proof of residency verification flow
+- Fixed the issue on the self-verification flow
+- Fixed minor issues after refactoring
+
+## Version 3.9.5
+*Released: April 15, 2022*
+
+### New Features
+- Document skip back
+- Document subtypes
+
+### Bug Fixes
+- Server error & no internet connection screens
+- Fixed minor issue related to the back button
+- Fixed issue on the e-sign step
+- Fixed minor issue in the verification done screen
+- Fixed issue related to the sending CPF typed to the document
+- Fixed issue on the Cordova plugin related to [ iOS podFile] replacing
+- Corrected done button title in Spanish
+
+## Version 3.9.4
+*Released: March 25, 2022*
+
+### Updated Features
+- Changed all things related to Mati on the plugins
+
+### Bug Fixes
+- Fixed issue on update document
+- Fixed issue related to the country restrictions
+- Fixed issue related to the detecting and auto-correcting whitespace characters in Email ID input
+- Changed text on the success screen
+- Fixed Sentry error on the React-Native plugin
+- Fixed incorrect verificationId and identityId response on the Flutter plugin
+
+## Version 3.9.3
+*Released: March 14, 2022*
+
+### New Features
+- Rebranding to MetaMap
+- Updated Flutter & Capacitor plugins for support iOS and Android latest version
+- Updated documentation about deprecated methods
+
+## Version 3.9.1
+*Released: February 23, 2022*
+
+### New Features
+- Added face detection
+- Document subType selection
+
+### Updated Features
+- Corrected credit check contents feature
+- Fixed start button issue on several screens
+- Fixed minor issues on the Brazil CPF screen
+
+### Bug Fixes
+- Fixed minor issues related to the e-sign step
+- Fixed retry button issue on the liveness screen
+- Fixed translation issues for Spanish
+
+## Version 3.9.0
+*Released: February 9, 2022*
+
+### New Features
+- Support CPF for Brazil NID
+- Support credit check
+- Support dynamic start screen
+- Replaced Mati logo to MetaMap
+
+### Bug Fixes
+- Fixed crash on the iPad
+- Fixed minor issue related to the mic. permission
+- Fixed layout issues related to the document scan and document previewers screens
+- Corrected ordering of verificationId and IdentityId - [ issue was in Flutter plugin ]
+
+## Version 3.8.9
+*Released: January 25, 2022*
+
+### New Features
+- Support error case for face mask detection
+- Dynamic web containers
+- Support device language by default
+- Support internet disconnect case for all project
+
+### Bug Fixes
+- Fixed issue related to the SMS resend timer freezes

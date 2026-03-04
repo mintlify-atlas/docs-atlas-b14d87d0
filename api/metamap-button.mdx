@@ -1,0 +1,297 @@
+---
+title: "MetaMapButton"
+description: "Pre-built UIButton subclass for launching MetaMap verification flow with customizable appearance."
+---
+
+## Overview
+
+The `MetaMapButton` class is a pre-built `UIButton` subclass that provides a ready-to-use button component for integrating MetaMap verification into your iOS application. It handles the visual appearance and can be easily customized to match your app's design.
+
+## Class Definition
+
+```swift
+class MetaMapButton : UIButton
+```
+
+```objc
+@interface MetaMapButton : UIButton
+```
+
+`MetaMapButton` inherits from `UIButton` and can be used anywhere a standard `UIButton` can be used.
+
+## Properties
+
+### title
+
+```swift
+var title: String? { get set }
+```
+
+```objc
+@property (nonatomic, copy) NSString * _Nullable title;
+```
+
+The text displayed on the button. Use this property to customize the button's label.
+
+### buttonColor
+
+```swift
+var buttonColor: UIColor? { get set }
+```
+
+```objc
+@property (nonatomic, strong) UIColor * _Nullable buttonColor;
+```
+
+The background color of the button. Set this to customize the button's appearance to match your app's theme.
+
+### textColor
+
+```swift
+var textColor: UIColor? { get set }
+```
+
+```objc
+@property (nonatomic, strong) UIColor * _Nullable textColor;
+```
+
+The color of the button's text. Use this to ensure proper contrast with the button background color.
+
+### intrinsicContentSize
+
+```swift
+var intrinsicContentSize: CGSize { get }
+```
+
+```objc
+@property (nonatomic, readonly) CGSize intrinsicContentSize;
+```
+
+The natural size for the button, considering its current configuration. This is used by Auto Layout to determine the button's size.
+
+## Initializers
+
+### init()
+
+```swift
+init()
+```
+
+```objc
+- (nonnull instancetype)init;
+```
+
+Creates a new instance of `MetaMapButton` with default settings.
+
+### init(coder:)
+
+```swift
+init?(coder: NSCoder)
+```
+
+```objc
+- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)aDecoder;
+```
+
+Creates a new instance of `MetaMapButton` from a storyboard or XIB file.
+
+<ParamField path="coder" type="NSCoder" required>
+  The decoder to use for initialization.
+</ParamField>
+
+### init(frame:)
+
+```swift
+init(frame: CGRect)
+```
+
+```objc
+- (nonnull instancetype)initWithFrame:(CGRect)frame;
+```
+
+Creates a new instance of `MetaMapButton` with a specific frame.
+
+<ParamField path="frame" type="CGRect" required>
+  The frame rectangle for the button, measured in points.
+</ParamField>
+
+## Usage Examples
+
+### Swift
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupMetaMapButton()
+    }
+    
+    private func setupMetaMapButton() {
+        // Initialize the button
+        let metaMapButton = MetaMapButton()
+        
+        // Customize appearance
+        metaMapButton.title = "Verify Identity"
+        metaMapButton.buttonColor = .systemBlue
+        metaMapButton.textColor = .white
+        
+        // Set frame
+        metaMapButton.frame = CGRect(
+            x: 20,
+            y: view.frame.size.height / 2 - 25,
+            width: view.frame.size.width - 40,
+            height: 50
+        )
+        
+        // Add button action
+        metaMapButton.addTarget(
+            self,
+            action: #selector(metaMapButtonAction),
+            for: .touchUpInside
+        )
+        
+        // Add to view
+        view.addSubview(metaMapButton)
+        
+        // Set delegate for results
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    @objc private func metaMapButtonAction() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            configurationId: nil,
+            encryptionConfigurationId: nil,
+            metadata: ["key1": "value1"]
+        )
+    }
+}
+
+// MARK: - MetaMapButtonResultDelegate
+extension ViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("Verification Success: \(identityId ?? "N/A")")
+    }
+    
+    func verificationCancelled(identityId: String?, verificationID: String?) {
+        print("Verification Cancelled")
+    }
+    
+    func verificationCreated(identityId: String?, verificationID: String?) {
+        print("Verification Created: \(verificationID ?? "N/A")")
+    }
+}
+```
+
+### Objective-C
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+@property (nonatomic, strong) MetaMapButton *metaMapButton;
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Initialize button
+    self.metaMapButton = [[MetaMapButton alloc] init];
+    
+    // Customize appearance
+    self.metaMapButton.title = @"Verify Identity";
+    self.metaMapButton.buttonColor = [UIColor systemBlueColor];
+    self.metaMapButton.textColor = [UIColor whiteColor];
+    
+    // Set frame
+    self.metaMapButton.frame = CGRectMake(
+        20,
+        self.view.frame.size.height / 2 - 25,
+        self.view.frame.size.width - 40,
+        50
+    );
+    
+    // Add action
+    [self.metaMapButton addTarget:self 
+                           action:@selector(metaMapButtonAction:) 
+                 forControlEvents:UIControlEventTouchUpInside];
+    
+    // Add to view
+    [self.view addSubview:self.metaMapButton];
+    
+    // Set delegate
+    [MetaMapButtonResult shared].delegate = self;
+}
+
+- (void)metaMapButtonAction:(UIButton *)sender {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID"
+                              configurationId:nil
+                   encryptionConfigurationId:nil
+                                       metadata:@{@"key1": @"value1"}];
+}
+
+#pragma mark - MetaMapButtonResultDelegate
+
+- (void)verificationSuccessWithIdentityId:(NSString *)identityId 
+                            verificationID:(NSString *)verificationID {
+    NSLog(@"Success: %@", identityId);
+}
+
+- (void)verificationCancelledWithIdentityId:(NSString *)identityId 
+                              verificationID:(NSString *)verificationID {
+    NSLog(@"Cancelled");
+}
+
+- (void)verificationCreatedWithIdentityId:(NSString *)identityId 
+                            verificationID:(NSString *)verificationID {
+    NSLog(@"Created: %@", verificationID);
+}
+
+@end
+```
+
+### Using Auto Layout
+
+```swift
+private func setupMetaMapButton() {
+    let metaMapButton = MetaMapButton()
+    metaMapButton.title = "Verify Identity"
+    metaMapButton.translatesAutoresizingMaskIntoConstraints = false
+    
+    view.addSubview(metaMapButton)
+    
+    NSLayoutConstraint.activate([
+        metaMapButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        metaMapButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        metaMapButton.widthAnchor.constraint(equalToConstant: 280),
+        metaMapButton.heightAnchor.constraint(equalToConstant: 50)
+    ])
+    
+    metaMapButton.addTarget(
+        self,
+        action: #selector(metaMapButtonAction),
+        for: .touchUpInside
+    )
+}
+```
+
+## Notes
+
+- `MetaMapButton` is a `UIButton` subclass, so all standard `UIButton` methods and properties are available.
+- The button can be added programmatically or through Interface Builder.
+- Remember to set up the `MetaMapButtonResult.shared.delegate` to receive verification callbacks.
+- The button automatically handles its appearance and layout through `intrinsicContentSize`.
+
+## See Also
+
+- [MetaMap](/api/metamap) - Core class for launching verification flow
+- [MetaMapButtonResult](/api/metamap-button-result) - Handle verification results and callbacks

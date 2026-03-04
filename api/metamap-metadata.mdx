@@ -1,0 +1,222 @@
+---
+title: "MetaMapMetadata"
+description: "Configuration metadata for customizing MetaMap SDK behavior and appearance"
+---
+
+## Overview
+
+The `MetaMapMetadata` class provides configuration options for customizing the MetaMap SDK's behavior and appearance. Metadata is passed as a dictionary to the `showMetaMapFlow` method and supports various customization options including language, colors, fonts, and identification parameters.
+
+## Usage
+
+Metadata is passed as an optional dictionary parameter when initializing the MetaMap flow:
+
+<CodeGroup>
+
+```swift Swift
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "fixedLanguage": "es",
+        "buttonColor": "#FF5733",
+        "buttonTextColor": "#FFFFFF",
+        "identityId": "user_12345"
+    ]
+)
+```
+
+```objc Objective-C
+[MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                     flowId:@"YOUR_FLOW_ID" 
+                                   metadata:@{
+                                       @"fixedLanguage": @"es",
+                                       @"buttonColor": @"#FF5733",
+                                       @"buttonTextColor": @"#FFFFFF",
+                                       @"identityId": @"user_12345"
+                                   }];
+```
+
+</CodeGroup>
+
+## Properties
+
+### Language Configuration
+
+<ParamField path="fixedLanguage" type="String" default="en">
+  Sets the SDK language. Supported languages include:
+  - `"en"` - English (default)
+  - `"es"` - Spanish
+  - `"fr"` - French
+  - `"pt"` - Portuguese
+  - `"ru"` - Russian
+  - `"tr"` - Turkish
+  - `"de"` - German
+  - `"it"` - Italian
+  - `"pl"` - Polish
+  - `"th"` - Thai
+
+  ```swift
+  metadata: ["fixedLanguage": "es"]
+  ```
+</ParamField>
+
+### Color Customization
+
+<ParamField path="buttonColor" type="String" default="#FFFFFF">
+  Customizes the main button background color using hexadecimal color format.
+
+  ```swift
+  metadata: ["buttonColor": "#FF5733"]
+  ```
+</ParamField>
+
+<ParamField path="buttonTextColor" type="String" default="#000000">
+  Customizes the main button text color using hexadecimal color format.
+
+  ```swift
+  metadata: ["buttonTextColor": "#FFFFFF"]
+  ```
+</ParamField>
+
+### Identity Configuration
+
+<ParamField path="identityId" type="String">
+  Sets an identity ID parameter for re-verification purposes. Use this when you need to re-verify an existing user.
+
+  ```swift
+  metadata: ["identityId": "user_12345"]
+  ```
+</ParamField>
+
+### Security Configuration
+
+<ParamField path="encryptionConfigurationId" type="String">
+  Sets the encryption configuration ID for encrypting sensitive data during transmission.
+
+  ```swift
+  metadata: ["encryptionConfigurationId": "config_abc123"]
+  ```
+</ParamField>
+
+### Font Customization
+
+<ParamField path="regularFont" type="String">
+  Specifies a custom regular font file name. The font file must be included in your project.
+
+  ```swift
+  metadata: ["regularFont": "CustomFont-Regular.ttf"]
+  ```
+
+  <Note>
+    The font file must be added to your project and properly configured in your app's Info.plist under the `UIAppFonts` key.
+  </Note>
+</ParamField>
+
+<ParamField path="boldFont" type="String">
+  Specifies a custom bold font file name. The font file must be included in your project.
+
+  ```swift
+  metadata: ["boldFont": "CustomFont-Bold.ttf"]
+  ```
+
+  <Note>
+    If custom fonts are not provided or cannot be found, the SDK will use default system fonts.
+  </Note>
+</ParamField>
+
+## Complete Example
+
+<CodeGroup>
+
+```swift Swift
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    @objc private func metaMapButtonAction() {
+        // Configure metadata with all available options
+        let metadata: [String: Any] = [
+            // Language
+            "fixedLanguage": "es",
+            
+            // Colors
+            "buttonColor": "#FF5733",
+            "buttonTextColor": "#FFFFFF",
+            
+            // Identity
+            "identityId": "user_12345",
+            
+            // Security
+            "encryptionConfigurationId": "config_abc123",
+            
+            // Fonts
+            "regularFont": "Roboto-Regular.ttf",
+            "boldFont": "Roboto-Bold.ttf",
+            
+            // Custom data
+            "customKey": "customValue",
+            "userId": 12345
+        ]
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: metadata
+        )
+    }
+}
+```
+
+```objc Objective-C
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@implementation ViewController
+
+- (void)metaMapButtonAction:(UIButton *)sender {
+    // Configure metadata with all available options
+    NSDictionary *metadata = @{
+        // Language
+        @"fixedLanguage": @"es",
+        
+        // Colors
+        @"buttonColor": @"#FF5733",
+        @"buttonTextColor": @"#FFFFFF",
+        
+        // Identity
+        @"identityId": @"user_12345",
+        
+        // Security
+        @"encryptionConfigurationId": @"config_abc123",
+        
+        // Fonts
+        @"regularFont": @"Roboto-Regular.ttf",
+        @"boldFont": @"Roboto-Bold.ttf",
+        
+        // Custom data
+        @"customKey": @"customValue",
+        @"userId": @12345
+    };
+    
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                          flowId:@"YOUR_FLOW_ID"
+                                        metadata:metadata];
+}
+
+@end
+```
+
+</CodeGroup>
+
+## Notes
+
+- All metadata parameters are optional
+- Custom metadata keys can be added for tracking purposes
+- Values can be of any JSON-compatible type (String, Int, Bool, Dictionary, Array)
+- Invalid color formats will fallback to default colors
+- Missing font files will fallback to system fonts
+
+## See Also
+
+- [MetaMap](/api/metamap) - Main SDK class
+- [MetaMapButton](/api/metamap-button) - Pre-built verification button component

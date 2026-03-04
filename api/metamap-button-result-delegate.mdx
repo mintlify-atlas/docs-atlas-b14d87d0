@@ -1,0 +1,323 @@
+---
+title: "MetaMapButtonResultDelegate"
+description: "Protocol for handling MetaMap verification flow results"
+---
+
+The `MetaMapButtonResultDelegate` protocol provides callback methods to handle the results of the MetaMap verification flow. Implement this protocol to receive notifications when verification succeeds, is cancelled, or is created.
+
+## Protocol Overview
+
+```swift
+protocol MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?)
+    func verificationCancelled(identityId: String?, verificationID: String?)
+    func verificationCreated(identityId: String?, verificationID: String?)
+}
+```
+
+## Methods
+
+### verificationSuccess
+
+Called when the verification process completes successfully.
+
+```swift
+func verificationSuccess(identityId: String?, verificationID: String?)
+```
+
+<ParamField path="identityId" type="String?" optional>
+  The unique identifier for the user's identity. May be `nil` if not available.
+</ParamField>
+
+<ParamField path="verificationID" type="String?" optional>
+  The unique identifier for the verification session. May be `nil` if not available.
+</ParamField>
+
+### verificationCancelled
+
+Called when the user cancels the verification process.
+
+```swift
+func verificationCancelled(identityId: String?, verificationID: String?)
+```
+
+<ParamField path="identityId" type="String?" optional>
+  The unique identifier for the user's identity. May be `nil` if the verification was cancelled before identity creation.
+</ParamField>
+
+<ParamField path="verificationID" type="String?" optional>
+  The unique identifier for the verification session. May be `nil` if the verification was cancelled before session creation.
+</ParamField>
+
+### verificationCreated
+
+Called when a new verification session is created.
+
+```swift
+func verificationCreated(identityId: String?, verificationID: String?)
+```
+
+<ParamField path="identityId" type="String?" optional>
+  The unique identifier for the user's identity. May be `nil` if not yet assigned.
+</ParamField>
+
+<ParamField path="verificationID" type="String?" optional>
+  The unique identifier for the newly created verification session.
+</ParamField>
+
+## Implementation Examples
+
+### Swift
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Set up the delegate to receive verification results
+        MetaMapButtonResult.shared.delegate = self
+        
+        // Set up your MetaMap button
+        setupMetaMapButton()
+    }
+    
+    private func setupMetaMapButton() {
+        let metaMapButton = MetaMapButton()
+        metaMapButton.addTarget(self, action: #selector(startVerification), for: .touchUpInside)
+        metaMapButton.frame = CGRect(x: 20, y: view.frame.size.height/2 - 50, 
+                                    width: view.frame.size.width - 40, height: 50)
+        view.addSubview(metaMapButton)
+    }
+    
+    @objc private func startVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["key1": "value1", "key2": 123]
+        )
+    }
+}
+
+// MARK: - MetaMapButtonResultDelegate
+extension ViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("✅ Verification Success")
+        print("Identity ID: \\(identityId ?? "N/A")")
+        print("Verification ID: \\(verificationID ?? "N/A")")
+        
+        // Handle successful verification
+        // e.g., navigate to success screen, update UI, etc.
+    }
+    
+    func verificationCancelled(identityId: String?, verificationID: String?) {
+        print("❌ Verification Cancelled")
+        print("Identity ID: \\(identityId ?? "N/A")")
+        print("Verification ID: \\(verificationID ?? "N/A")")
+        
+        // Handle cancellation
+        // e.g., show message to user, log analytics, etc.
+    }
+    
+    func verificationCreated(identityId: String?, verificationID: String?) {
+        print("🆕 Verification Created")
+        print("Identity ID: \\(identityId ?? "N/A")")
+        print("Verification ID: \\(verificationID ?? "N/A")")
+        
+        // Handle verification creation
+        // e.g., store IDs for later use, update tracking, etc.
+    }
+}
+```
+
+### SwiftUI
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            ZStack {
+                // Add the delegate observer
+                MetaMapDelegateObserver(
+                    success: { identityId, verificationId in
+                        print("✅ Success: \\(identityId ?? "N/A"), \\(verificationId ?? "N/A")")
+                    },
+                    cancelled: { identityId, verificationId in
+                        print("❌ Cancelled: \\(identityId ?? "N/A"), \\(verificationId ?? "N/A")")
+                    },
+                    created: { identityId, verificationId in
+                        print("🆕 Created: \\(identityId ?? "N/A"), \\(verificationId ?? "N/A")")
+                    }
+                )
+                
+                Button("Start Verification") {
+                    MetaMap.shared.showMetaMapFlow(
+                        clientId: "YOUR_CLIENT_ID",
+                        flowId: "YOUR_FLOW_ID",
+                        metadata: ["key1": "value1"]
+                    )
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+        }
+    }
+}
+
+struct MetaMapDelegateObserver: UIViewControllerRepresentable {
+    let vc = MetaMapViewController()
+    
+    var success: (_ identityId: String?, _ verificationId: String?) -> Void
+    var cancelled: (_ identityId: String?, _ verificationId: String?) -> Void
+    var created: (_ identityId: String?, _ verificationId: String?) -> Void
+    
+    func makeUIViewController(context: Context) -> MetaMapViewController {
+        return vc
+    }
+    
+    func updateUIViewController(_ uiViewController: MetaMapViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(success: success, cancelled: cancelled, created: created)
+    }
+    
+    class Coordinator: NSObject, MetaMapButtonResultDelegate {
+        var success: (_ identityId: String?, _ verificationId: String?) -> Void
+        var cancelled: (_ identityId: String?, _ verificationId: String?) -> Void
+        var created: (_ identityId: String?, _ verificationId: String?) -> Void
+        
+        init(success: @escaping (_ identityId: String?, _ verificationId: String?) -> Void,
+             cancelled: @escaping (_ identityId: String?, _ verificationId: String?) -> Void,
+             created: @escaping (_ identityId: String?, _ verificationId: String?) -> Void) {
+            self.success = success
+            self.cancelled = cancelled
+            self.created = created
+            super.init()
+            MetaMapButtonResult.shared.delegate = self
+        }
+        
+        func verificationSuccess(identityId: String?, verificationID: String?) {
+            success(identityId, verificationID)
+        }
+        
+        func verificationCancelled(identityId: String?, verificationID: String?) {
+            cancelled(identityId, verificationID)
+        }
+        
+        func verificationCreated(identityId: String?, verificationID: String?) {
+            created(identityId, verificationID)
+        }
+    }
+}
+
+class MetaMapViewController: UIViewController {}
+```
+
+### Objective-C
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+@property (nonatomic, strong) MetaMapButton *metaMapButton;
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Set up the delegate
+    [MetaMapButtonResult shared].delegate = self;
+    
+    // Set up the MetaMap button
+    [self setupMetaMapButton];
+}
+
+- (void)setupMetaMapButton {
+    self.metaMapButton = [[MetaMapButton alloc] init];
+    [self.metaMapButton addTarget:self 
+                           action:@selector(startVerification:) 
+                 forControlEvents:UIControlEventTouchUpInside];
+    
+    self.metaMapButton.frame = CGRectMake(20, 
+                                          self.view.frame.size.height/2 - 25, 
+                                          self.view.frame.size.width - 40, 
+                                          50);
+    [self.view addSubview:self.metaMapButton];
+}
+
+- (void)startVerification:(UIButton *)sender {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                               configurationId:nil 
+                    encryptionConfigurationId:nil 
+                                      metadata:@{@"key1": @"value1"}];
+}
+
+#pragma mark - MetaMapButtonResultDelegate
+
+- (void)verificationSuccessWithIdentityId:(NSString *)identityId 
+                           verificationID:(NSString *)verificationID {
+    NSLog(@"✅ Verification Success");
+    NSLog(@"Identity ID: %@", identityId ?: @"N/A");
+    NSLog(@"Verification ID: %@", verificationID ?: @"N/A");
+    
+    // Handle successful verification
+}
+
+- (void)verificationCancelledWithIdentityId:(NSString *)identityId 
+                             verificationID:(NSString *)verificationID {
+    NSLog(@"❌ Verification Cancelled");
+    NSLog(@"Identity ID: %@", identityId ?: @"N/A");
+    NSLog(@"Verification ID: %@", verificationID ?: @"N/A");
+    
+    // Handle cancellation
+}
+
+- (void)verificationCreatedWithIdentityId:(NSString *)identityId 
+                           verificationID:(NSString *)verificationID {
+    NSLog(@"🆕 Verification Created");
+    NSLog(@"Identity ID: %@", identityId ?: @"N/A");
+    NSLog(@"Verification ID: %@", verificationID ?: @"N/A");
+    
+    // Handle verification creation
+}
+
+@end
+```
+
+## Best Practices
+
+<Tip>
+**Store Verification IDs**: Save the `identityId` and `verificationID` when received. These IDs are essential for:
+- Querying verification status via the MetaMap API
+- Re-verification flows
+- Customer support inquiries
+</Tip>
+
+<Warning>
+**Handle Nil Values**: Both `identityId` and `verificationID` parameters are optional. Always check for `nil` values before using them, especially in the `verificationCancelled` and `verificationCreated` callbacks.
+</Warning>
+
+## Related Types
+
+- [MetaMapButtonResult](/api/metamap-button-result) - Singleton class that manages the delegate
+- [MetaMapButton](/api/metamap-button) - UI button component for starting verification
+- [MetaMap](/api/metamap) - Main SDK class for initiating verification flows
+
+## See Also
+
+- [Quickstart Guide](/quickstart)
+- [Metadata Configuration](/core-concepts/metadata)
+- [Verification Flows](/core-concepts/flows)

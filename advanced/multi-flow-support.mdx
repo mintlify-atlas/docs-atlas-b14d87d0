@@ -1,0 +1,308 @@
+---
+title: "Multi-Flow Support"
+description: "Use flowId parameter to support different verification flows in your iOS app"
+---
+
+MetaMap iOS SDK supports multiple verification flows within the same application using the `flowId` parameter. This allows you to create different verification experiences for different user types or use cases.
+
+## Overview
+
+The `flowId` parameter specifies which verification flow to execute. Each flow can have:
+
+- Different verification steps
+- Custom branding and styling
+- Specific document requirements
+- Unique configuration settings
+
+## Basic Implementation
+
+### Swift
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    @objc private func startBasicVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "7e8zf446aa5b5e001a7769d0",
+            metadata: ["key1": "value1"]
+        )
+    }
+}
+```
+
+### Objective-C
+
+```objc
+#import <MetaMapSDK/MetaMapSDK.h>
+
+- (void)startBasicVerification {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                         flowId:@"7e8zf446aa5b5e001a7769d0"
+                                       metadata:@{@"key1": @"value1"}];
+}
+```
+
+## Multiple Flow Examples
+
+You can implement different flows for various scenarios:
+
+### Example 1: User Type-Based Flows
+
+```swift
+import MetaMapSDK
+
+class VerificationManager {
+    
+    enum UserType {
+        case individual
+        case business
+        case premium
+    }
+    
+    func startVerification(for userType: UserType) {
+        let flowId: String
+        let metadata: [String: Any]
+        
+        switch userType {
+        case .individual:
+            flowId = "individual_flow_id"
+            metadata = ["userType": "individual", "tier": "basic"]
+            
+        case .business:
+            flowId = "business_flow_id"
+            metadata = ["userType": "business", "requiresEIN": true]
+            
+        case .premium:
+            flowId = "premium_flow_id"
+            metadata = ["userType": "premium", "enhancedChecks": true]
+        }
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: flowId,
+            metadata: metadata
+        )
+    }
+}
+
+// Usage
+let manager = VerificationManager()
+manager.startVerification(for: .business)
+```
+
+### Example 2: Region-Specific Flows
+
+```swift
+import MetaMapSDK
+
+class RegionalVerification {
+    
+    func startVerification(for countryCode: String) {
+        let flowId: String
+        let language: String
+        
+        switch countryCode {
+        case "US":
+            flowId = "us_verification_flow"
+            language = "en"
+            
+        case "ES":
+            flowId = "spain_verification_flow"
+            language = "es"
+            
+        case "BR":
+            flowId = "brazil_verification_flow"
+            language = "pt"
+            
+        case "FR":
+            flowId = "france_verification_flow"
+            language = "fr"
+            
+        default:
+            flowId = "international_flow"
+            language = "en"
+        }
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: flowId,
+            metadata: [
+                "fixedLanguage": language,
+                "region": countryCode
+            ]
+        )
+    }
+}
+```
+
+### Example 3: Re-verification Flow
+
+```swift
+import MetaMapSDK
+
+class ReVerificationHandler {
+    
+    func startReVerification(identityId: String) {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "reverification_flow_id",
+            metadata: [
+                "identityId": identityId,
+                "isReVerification": true
+            ]
+        )
+    }
+}
+```
+
+## Handling Multiple Flows with One Delegate
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class MultiFlowViewController: UIViewController {
+    
+    private var currentFlowType: String?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    func startFlow(type: String, flowId: String) {
+        currentFlowType = type
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: flowId,
+            metadata: ["flowType": type]
+        )
+    }
+}
+
+extension MultiFlowViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("Flow \(currentFlowType ?? "unknown") completed successfully")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+        
+        // Handle success based on flow type
+        switch currentFlowType {
+        case "individual":
+            handleIndividualSuccess()
+        case "business":
+            handleBusinessSuccess()
+        case "premium":
+            handlePremiumSuccess()
+        default:
+            break
+        }
+    }
+    
+    func verificationCancelled() {
+        print("Flow \(currentFlowType ?? "unknown") was cancelled")
+    }
+    
+    private func handleIndividualSuccess() {
+        // Individual flow specific logic
+    }
+    
+    private func handleBusinessSuccess() {
+        // Business flow specific logic
+    }
+    
+    private func handlePremiumSuccess() {
+        // Premium flow specific logic
+    }
+}
+```
+
+## SwiftUI Implementation
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct MultiFlowView: View {
+    
+    @State private var selectedFlow: FlowType = .basic
+    
+    enum FlowType: String, CaseIterable {
+        case basic = "Basic Verification"
+        case enhanced = "Enhanced Verification"
+        case document = "Document Only"
+        
+        var flowId: String {
+            switch self {
+            case .basic:
+                return "basic_flow_id"
+            case .enhanced:
+                return "enhanced_flow_id"
+            case .document:
+                return "document_flow_id"
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Picker("Select Flow", selection: $selectedFlow) {
+                ForEach(FlowType.allCases, id: \.self) { flow in
+                    Text(flow.rawValue).tag(flow)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+            
+            Button("Start \(selectedFlow.rawValue)") {
+                startVerification()
+            }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+            
+            MetaMapDelegateObserver { identityId, verificationId in
+                print("Success: \(identityId ?? "N/A")")
+            } cancelled: {
+                print("Cancelled")
+            }
+        }
+    }
+    
+    private func startVerification() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: selectedFlow.flowId,
+            metadata: ["flowType": selectedFlow.rawValue]
+        )
+    }
+}
+```
+
+## Best Practices
+
+1. **Flow ID Management**: Store flow IDs in a configuration file or remote config for easy updates
+2. **Metadata Tracking**: Use metadata to track which flow was executed for analytics
+3. **Error Handling**: Implement proper error handling for each flow type
+4. **User Experience**: Provide clear context to users about which verification flow they're entering
+5. **Testing**: Test each flow thoroughly in your staging environment before production
+
+## Getting Flow IDs
+
+Flow IDs are created and managed in your MetaMap Dashboard:
+
+1. Log in to your MetaMap Dashboard
+2. Navigate to Flows
+3. Create or select an existing flow
+4. Copy the Flow ID from the flow settings
+
+<Note>
+  Each flow can have different verification steps, document requirements, and configuration settings. Ensure you're using the correct flow ID for each use case.
+</Note>

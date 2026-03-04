@@ -1,97 +1,285 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: MetaMap iOS SDK Documentation
+description: Identity verification and KYC SDK for iOS applications
+mode: custom
 ---
 
-## Setting up
+<div className="relative overflow-hidden bg-gradient-to-br from-[#444444] via-[#5a6ea6] to-[#65cff4] dark:from-[#0f1117] dark:via-[#1a1d27] dark:to-[#242838] py-20">
+  <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white dark:text-gray-100 mb-6">
+          MetaMap iOS SDK
+        </h1>
+        <p className="text-lg sm:text-xl text-white/90 dark:text-gray-300 mb-8 max-w-2xl">
+          Add secure identity verification to your iOS app in minutes. Verify documents, biometrics, and identity with a production-ready SDK trusted by enterprises worldwide.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-flex items-center px-6 py-3 text-base font-semibold text-white bg-[#444444] hover:bg-[#333333] dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 rounded-lg transition-colors no-underline"
+          >
+            Get Started
+            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+          <a 
+            href="/api/metamap" 
+            className="inline-flex items-center px-6 py-3 text-base font-semibold text-white border border-white/30 bg-white/10 hover:bg-white/20 hover:border-white/50 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:bg-gray-700/50 rounded-lg transition-colors no-underline"
+          >
+            API Reference
+          </a>
+        </div>
+      </div>
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#e78465]/20 to-[#65cff4]/20 blur-3xl rounded-full"></div>
+          <img 
+            src="https://media.brand.dev/f222c358-536e-4adb-bcb8-9f0abb732522.svg" 
+            alt="MetaMap Logo" 
+            noZoom
+            className="relative w-full h-auto max-w-md mx-auto"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-Get your documentation site up and running in minutes.
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Quick Start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get up and running with MetaMap in your iOS app in just a few steps
+  </p>
+  
+  <Steps>
+    <Step title="Install the SDK">
+      Add MetaMap to your project using CocoaPods. Add this line to your Podfile:
+      
+      ```ruby Podfile
+      pod 'MetaMapSDK', '3.23.14'
+      ```
+      
+      Then run:
+      
+      ```bash Terminal
+      pod install
+      ```
+    </Step>
+    
+    <Step title="Import and initialize">
+      Import the SDK in your view controller and set up the MetaMap button:
+      
+      ```swift ViewController.swift
+      import UIKit
+      import MetaMapSDK
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+      class ViewController: UIViewController {
+          override func viewDidLoad() {
+              super.viewDidLoad()
+              setupMetaMapButton()
+          }
+          
+          private func setupMetaMapButton() {
+              let metaMapButton = MetaMapButton()
+              metaMapButton.addTarget(self, action: #selector(metaMapButtonAction), for: .touchUpInside)
+              metaMapButton.frame = CGRect(x: 20, y: self.view.frame.size.height/2 - 50, 
+                                          width: view.frame.size.width - 40, height: 50)
+              view.addSubview(metaMapButton)
+              
+              MetaMapButtonResult.shared.delegate = self
+          }
+          
+          @objc private func metaMapButtonAction() {
+              MetaMap.shared.showMetaMapFlow(
+                  clientId: "YOUR_CLIENT_ID",
+                  flowId: "YOUR_FLOW_ID",
+                  metadata: ["key": "value"]
+              )
+          }
+      }
+      ```
+    </Step>
+    
+    <Step title="Handle verification results">
+      Implement the delegate protocol to receive verification callbacks:
+      
+      ```swift ViewController.swift
+      extension ViewController: MetaMapButtonResultDelegate {
+          func verificationSuccess(identityId: String?, verificationID: String?) {
+              print("Verification successful: \(identityId ?? "")")
+              // Handle successful verification
+          }
+          
+          func verificationCancelled() {
+              print("Verification cancelled")
+              // Handle cancellation
+          }
+      }
+      ```
+    </Step>
+    
+    <Step title="Configure permissions">
+      Add required permissions to your `Info.plist`:
+      
+      ```xml Info.plist
+      <key>NSCameraUsageDescription</key>
+      <string>MetaMap needs access to your Camera</string>
+      <key>NSPhotoLibraryUsageDescription</key>
+      <string>MetaMap needs access to your media library</string>
+      <key>NSMicrophoneUsageDescription</key>
+      <string>MetaMap needs access to your Microphone</string>
+      <key>NSLocationWhenInUseUsageDescription</key>
+      <string>MetaMap will use your location information to provide best possible verification experience.</string>
+      ```
+    </Step>
+  </Steps>
+</div>
 
-## Make it yours
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Key Features
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Everything you need to verify user identity in your iOS application
+  </p>
+  
+  <CardGroup cols={3}>
+    <Card title="Document Verification" icon="id-card" href="/verification/document-verification">
+      Verify government-issued IDs, passports, and driver's licenses with automatic extraction
+    </Card>
+    <Card title="Biometric Verification" icon="face-scan" href="/verification/biometric-verification">
+      Advanced facial recognition with liveness detection to prevent spoofing
+    </Card>
+    <Card title="Phone & Email" icon="envelope" href="/verification/phone-email-verification">
+      Verify user contact information with OTP-based authentication
+    </Card>
+    <Card title="Multi-Flow Support" icon="diagram-project" href="/advanced/multi-flow-support">
+      Create custom verification workflows tailored to your business needs
+    </Card>
+    <Card title="UI Customization" icon="palette" href="/ui/customization">
+      Customize colors, fonts, and button styles to match your brand
+    </Card>
+    <Card title="Multi-Language" icon="language" href="/advanced/localization">
+      Built-in support for 10+ languages with automatic device locale detection
+    </Card>
+  </CardGroup>
+</div>
 
-Design a docs site that looks great and empowers your users.
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Integration Options
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Flexible integration approaches for UIKit, SwiftUI, and Objective-C projects
+  </p>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <a href="/ui/uikit-integration" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#444444] dark:hover:border-[#65cff4] overflow-hidden transition-colors no-underline bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="w-12 h-12 rounded-lg bg-[#444444]/10 dark:bg-[#65cff4]/10 flex items-center justify-center mb-4">
+          <svg className="w-6 h-6 text-[#444444] dark:text-[#65cff4]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">UIKit Integration</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Traditional UIKit approach with view controllers and programmatic UI
+        </p>
+        <div className="flex items-center text-sm font-medium text-[#444444] dark:text-[#65cff4] group-hover:text-[#333333] dark:group-hover:text-[#7ddcff]">
+          Learn more
+          <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+    
+    <a href="/ui/swiftui-integration" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#444444] dark:hover:border-[#65cff4] overflow-hidden transition-colors no-underline bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="w-12 h-12 rounded-lg bg-[#e78465]/10 dark:bg-[#e78465]/10 flex items-center justify-center mb-4">
+          <svg className="w-6 h-6 text-[#e78465]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">SwiftUI Integration</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Modern declarative UI with SwiftUI views and modifiers
+        </p>
+        <div className="flex items-center text-sm font-medium text-[#444444] dark:text-[#65cff4] group-hover:text-[#333333] dark:group-hover:text-[#7ddcff]">
+          Learn more
+          <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+    
+    <a href="/ui/objective-c-integration" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] hover:border-[#444444] dark:hover:border-[#65cff4] overflow-hidden transition-colors no-underline bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <div className="w-12 h-12 rounded-lg bg-[#65cff4]/10 dark:bg-[#65cff4]/10 flex items-center justify-center mb-4">
+          <svg className="w-6 h-6 text-[#65cff4]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">Objective-C Integration</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Full compatibility with Objective-C projects and legacy codebases
+        </p>
+        <div className="flex items-center text-sm font-medium text-[#444444] dark:text-[#65cff4] group-hover:text-[#333333] dark:group-hover:text-[#7ddcff]">
+          Learn more
+          <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Resources
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Additional documentation and support resources
+  </p>
+  
+  <CardGroup cols={2}>
+    <Card title="API Reference" icon="code" href="/api/metamap">
+      Complete reference documentation for all classes, methods, and protocols
+    </Card>
+    <Card title="Changelog" icon="clock-rotate-left" href="/resources/changelog">
+      Track updates, new features, and bug fixes across SDK versions
+    </Card>
+    <Card title="Troubleshooting" icon="circle-question" href="/resources/troubleshooting">
+      Common issues and solutions for integration problems
+    </Card>
+    <Card title="Migration Guide" icon="arrows-turn-right" href="/resources/migration-guide">
+      Upgrade from older SDK versions with step-by-step instructions
+    </Card>
+  </CardGroup>
+</div>
 
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gradient-to-br from-[#444444] to-[#5a6ea6] dark:from-[#1a1d27] dark:to-[#242838] p-8 sm:p-12">
+    <h2 className="text-2xl sm:text-3xl font-bold text-white dark:text-gray-100 mb-4">
+      Ready to get started?
+    </h2>
+    <p className="text-lg text-white/90 dark:text-gray-300 mb-6 max-w-2xl">
+      Add secure identity verification to your iOS app today. Follow our quickstart guide to integrate MetaMap in minutes.
+    </p>
+    <a 
+      href="/quickstart" 
+      className="inline-flex items-center px-6 py-3 text-base font-semibold text-[#444444] bg-white hover:bg-gray-100 dark:text-gray-900 dark:bg-white dark:hover:bg-gray-100 rounded-lg transition-colors no-underline"
+    >
+      View Quickstart Guide
+      <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </a>
+  </div>
+</div>

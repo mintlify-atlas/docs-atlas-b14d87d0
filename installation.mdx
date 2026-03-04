@@ -1,0 +1,178 @@
+---
+title: "Installation"
+description: "Install MetaMap iOS SDK using CocoaPods and configure your project"
+---
+
+This guide walks you through installing the MetaMap iOS SDK using CocoaPods and configuring the required permissions.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Xcode 12.0 or later installed
+- iOS 13.0+ as your deployment target
+- CocoaPods installed on your machine
+- A MetaMap account with Client ID and Flow ID
+
+<Note>
+  If you don't have CocoaPods installed, run: `sudo gem install cocoapods`
+</Note>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Create or Update Podfile">
+    Navigate to your iOS project directory and create a `Podfile` if you don't have one:
+    
+    ```bash
+    cd /path/to/your/project
+    pod init
+    ```
+    
+    Add the MetaMap SDK pod to your `Podfile`:
+    
+    ```ruby Podfile
+    platform :ios, '13.0'
+    
+    target 'YourAppTarget' do
+      use_frameworks!
+      
+      # MetaMap iOS SDK
+      pod 'MetaMapSDK', '3.23.14'
+    end
+    ```
+    
+    <Tip>
+      For the LTS version, use `pod 'MetaMapSDK', '3.22.8'`
+    </Tip>
+  </Step>
+  
+  <Step title="Install Dependencies">
+    Run the following command in your terminal to install the SDK:
+    
+    ```bash
+    pod install
+    ```
+    
+    This will download the MetaMap SDK and its dependencies (approximately 30 MB).
+    
+    <Warning>
+      Always open your project using the `.xcworkspace` file after installing CocoaPods, not the `.xcodeproj` file.
+    </Warning>
+  </Step>
+  
+  <Step title="Configure Info.plist Permissions">
+    Add the required privacy permissions to your `Info.plist` file. The SDK requires access to the camera, photo library, microphone, and optionally location.
+    
+    <Tabs>
+      <Tab title="XML Format">
+        Add the following keys to your `Info.plist`:
+        
+        ```xml Info.plist
+        <key>NSCameraUsageDescription</key>
+        <string>MetaMap needs access to your Camera</string>
+        
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>MetaMap needs access to your media library</string>
+        
+        <key>NSMicrophoneUsageDescription</key>
+        <string>MetaMap needs access to your Microphone</string>
+        
+        <key>NSLocationWhenInUseUsageDescription</key>
+        <string>MetaMap will use your location information to provide best possible verification experience.</string>
+        
+        <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+        <string>MetaMap will use your location information to provide best possible verification experience.</string>
+        
+        <key>NSLocationAlwaysUsageDescription</key>
+        <string>MetaMap will use your location information to provide best possible verification experience.</string>
+        ```
+      </Tab>
+      
+      <Tab title="Xcode Property List">
+        Open `Info.plist` in Xcode and add these keys:
+        
+        | Key | Type | Value |
+        |-----|------|-------|
+        | Privacy - Camera Usage Description | String | MetaMap needs access to your Camera |
+        | Privacy - Photo Library Usage Description | String | MetaMap needs access to your media library |
+        | Privacy - Microphone Usage Description | String | MetaMap needs access to your Microphone |
+        | Privacy - Location When In Use Usage Description | String | MetaMap will use your location information to provide best possible verification experience. |
+        | Privacy - Location Always and When In Use Usage Description | String | MetaMap will use your location information to provide best possible verification experience. |
+        | Privacy - Location Always Usage Description | String | MetaMap will use your location information to provide best possible verification experience. |
+      </Tab>
+    </Tabs>
+    
+    <Warning>
+      **Important:** Without these permissions, the SDK will not function properly and will crash when attempting to access restricted resources.
+    </Warning>
+  </Step>
+  
+  <Step title="Import the SDK">
+    Import MetaMapSDK in your Swift files:
+    
+    ```swift
+    import MetaMapSDK
+    ```
+    
+    For Objective-C:
+    
+    ```objc
+    #import <MetaMapSDK/MetaMapSDK.h>
+    ```
+  </Step>
+</Steps>
+
+## Verify Installation
+
+To verify that the SDK is properly installed:
+
+1. Open your project workspace: `open YourProject.xcworkspace`
+2. Build your project (⌘ + B)
+3. Ensure there are no compilation errors
+
+<Check>
+  If the build succeeds, you've successfully installed MetaMap iOS SDK!
+</Check>
+
+## SDK Components
+
+The MetaMap SDK installation includes the following frameworks:
+
+- **MetaMapSDK.xcframework** - Core SDK functionality
+- **IncdOnboarding.xcframework** - Onboarding flow components
+- **opencv2.xcframework** - Image processing capabilities
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="CocoaPods cannot find MetaMapSDK">
+    Update your CocoaPods repo:
+    
+    ```bash
+    pod repo update
+    pod install
+    ```
+  </Accordion>
+  
+  <Accordion title="Build fails with framework not found">
+    Clean your build folder and reinstall:
+    
+    ```bash
+    pod deintegrate
+    pod install
+    ```
+    
+    Then clean your Xcode build folder (⌘ + Shift + K) and rebuild.
+  </Accordion>
+  
+  <Accordion title="Permission crash on device">
+    Ensure all required permission descriptions are added to your `Info.plist`. Missing permission descriptions will cause crashes when the SDK attempts to access those resources.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+  Learn how to implement MetaMap verification in your app
+</Card>

@@ -1,0 +1,319 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions for MetaMap iOS SDK integration"
+icon: "wrench"
+---
+
+# Troubleshooting Guide
+
+This guide covers common issues you might encounter when integrating the MetaMap iOS SDK and their solutions.
+
+## Installation Issues
+
+<AccordionGroup>
+  <Accordion title="CocoaPods installation fails">
+    **Problem:** `pod install` fails or shows dependency conflicts.
+
+    **Solutions:**
+    - Update CocoaPods to the latest version:
+      ```bash
+      sudo gem install cocoapods
+      ```
+    - Clear CocoaPods cache:
+      ```bash
+      pod cache clean --all
+      pod deintegrate
+      pod install
+      ```
+    - Ensure your Podfile specifies the correct iOS version:
+      ```ruby
+      platform :ios, '13.0'
+      ```
+    - Try updating your pod repository:
+      ```bash
+      pod repo update
+      ```
+  </Accordion>
+
+  <Accordion title="SDK download size too large">
+    **Problem:** SDK download is taking too long or consuming too much space.
+
+    **Solution:**
+    - As of version 3.22.5, the SDK size has been reduced from 50MB to 30MB
+    - As of version 3.13.2, download size was optimized to 3.66MB
+    - Ensure you're using the latest version:
+      ```ruby
+      pod 'MetaMapSDK', '3.22.8'
+      ```
+  </Accordion>
+
+  <Accordion title="Build errors after installation">
+    **Problem:** Xcode shows build errors after adding MetaMapSDK.
+
+    **Solutions:**
+    - Clean build folder (Shift + Cmd + K)
+    - Delete derived data:
+      ```bash
+      rm -rf ~/Library/Developer/Xcode/DerivedData
+      ```
+    - Ensure Swift version 5.7 is configured in your project
+    - Check minimum iOS deployment target is set to iOS 13.0 or higher
+  </Accordion>
+</AccordionGroup>
+
+## Runtime Issues
+
+<AccordionGroup>
+  <Accordion title="App crashes when launching MetaMap flow">
+    **Problem:** Application crashes immediately when calling `showMetaMapFlow`.
+
+    **Solutions:**
+    - Verify you've added all required permissions to Info.plist:
+      ```xml
+      <key>NSCameraUsageDescription</key>
+      <string>MetaMap needs access to your Camera</string>
+      <key>NSPhotoLibraryUsageDescription</key>
+      <string>MetaMap needs access to your media library</string>
+      <key>NSMicrophoneUsageDescription</key>
+      <string>MetaMap needs access to your Microphone</string>
+      <key>NSLocationWhenInUseUsageDescription</key>
+      <string>MetaMap will use your location information to provide best possible verification experience.</string>
+      ```
+    - Check that clientId and flowId are valid
+    - Ensure MetaMapButtonResult.shared.delegate is set before calling showMetaMapFlow
+    - Check console logs for specific error messages
+  </Accordion>
+
+  <Accordion title="Delegate methods not being called">
+    **Problem:** `verificationSuccess` or `verificationCancelled` callbacks are not triggered.
+
+    **Solutions:**
+    - Ensure you set the delegate before showing the flow:
+      ```swift
+      MetaMapButtonResult.shared.delegate = self
+      ```
+    - Verify your class conforms to `MetaMapButtonResultDelegate`:
+      ```swift
+      extension ViewController: MetaMapButtonResultDelegate {
+          func verificationSuccess(identityId: String?, verificationID: String?) {
+              print("Success: \(identityId ?? "")")
+          }
+          
+          func verificationCancelled() {
+              print("Cancelled")
+          }
+      }
+      ```
+    - For SwiftUI, ensure MetaMapDelegateObserver is properly initialized
+  </Accordion>
+
+  <Accordion title="Camera or microphone not working">
+    **Problem:** Camera or microphone features fail during verification.
+
+    **Solutions:**
+    - Verify all required permissions are in Info.plist
+    - Check device settings to ensure permissions are granted
+    - Test on a physical device (simulator has limited camera support)
+    - Ensure you're not blocking camera access in your app's settings
+    - Check for conflicts with other SDKs that use camera/microphone
+  </Accordion>
+
+  <Accordion title="Verification creates duplicate entries">
+    **Problem:** Multiple verifications are being created for a single flow.
+
+    **Solution:**
+    - This was fixed in version 3.15.2
+    - Update to the latest SDK version:
+      ```ruby
+      pod 'MetaMapSDK', '3.22.8'
+      ```
+    - Ensure you're not calling `showMetaMapFlow` multiple times accidentally
+  </Accordion>
+</AccordionGroup>
+
+## UI and Display Issues
+
+<AccordionGroup>
+  <Accordion title="UI elements not displaying correctly on iPad">
+    **Problem:** Layout issues or crashes specific to iPad.
+
+    **Solutions:**
+    - Update to version 3.22.3 or later (fixed active liveness orientation capture)
+    - Version 3.9.0 fixed crashes on iPad
+    - Ensure your app supports both iPhone and iPad if needed
+    - Test on actual iPad devices for orientation-specific issues
+  </Accordion>
+
+  <Accordion title="Custom colors not applying">
+    **Problem:** Button colors or text colors not changing despite metadata settings.
+
+    **Solutions:**
+    - Use proper hex color format in metadata:
+      ```swift
+      metadata: ["buttonColor": "#FF5733", "buttonTextColor": "#FFFFFF"]
+      ```
+    - Version 3.16.1+ supports full color customization
+    - Check if you're using the correct metadata keys:
+      - `buttonColor` for button background
+      - `buttonTextColor` for button text
+  </Accordion>
+
+  <Accordion title="Custom fonts not loading">
+    **Problem:** Custom fonts specified in metadata are not being used.
+
+    **Solutions:**
+    - Ensure font files are added to your Xcode project
+    - Add fonts to Info.plist under "Fonts provided by application"
+    - Use correct font file names with extensions:
+      ```swift
+      metadata: ["regularFont": "YourFont-Regular.ttf", "boldFont": "YourFont-Bold.ttf"]
+      ```
+    - Verify font files are included in the app target
+  </Accordion>
+
+  <Accordion title="Dark mode issues">
+    **Problem:** UI doesn't adapt properly to dark mode.
+
+    **Solution:**
+    - Dark mode support was added in version 3.10.1
+    - Update to version 3.22.8 for full dark mode support
+    - Test with device set to both light and dark appearance
+  </Accordion>
+</AccordionGroup>
+
+## Document Verification Issues
+
+<AccordionGroup>
+  <Accordion title="Brazilian driver's license upload fails">
+    **Problem:** Upload issues specifically with Brazilian driver's licenses.
+
+    **Solution:**
+    - This was fixed in version 3.22.5
+    - Update to the latest SDK version
+    - Ensure proper document type is selected in your flow configuration
+  </Accordion>
+
+  <Accordion title="Document country restriction errors">
+    **Problem:** Country restrictions preventing valid document uploads.
+
+    **Solutions:**
+    - Version 3.18.2 fixed default country selection in restrictions
+    - Version 3.11.2 fixed country restriction limiting uploads
+    - Verify your flow configuration allows the document's country
+    - Check that country restrictions are properly configured in MetaMap dashboard
+  </Accordion>
+
+  <Accordion title="PDF upload with multiple pages fails">
+    **Problem:** Cannot upload PDFs with multiple pages.
+
+    **Solution:**
+    - Multi-page PDF support was added in version 3.20.1
+    - Update to version 3.22.8 for this feature
+    - Ensure the PDF file size is within acceptable limits
+  </Accordion>
+</AccordionGroup>
+
+## Network and Connectivity Issues
+
+<AccordionGroup>
+  <Accordion title="Socket connection issues">
+    **Problem:** Real-time connection failures or ping-pong errors.
+
+    **Solutions:**
+    - Version 3.11.3 fixed socket connection ping-pong issues
+    - Version 3.13.0 updated to Socket.io version .three
+    - Check network connectivity
+    - Verify firewall settings allow WebSocket connections
+    - Test on different networks (WiFi vs cellular)
+  </Accordion>
+
+  <Accordion title="IP restriction errors">
+    **Problem:** Users blocked by IP restrictions.
+
+    **Solutions:**
+    - Version 3.13.0 shows IP restriction before start screen
+    - Version 3.12.0 fixed IP restriction issues
+    - Verify IP whitelist in MetaMap dashboard
+    - Provide clear error messaging to users
+    - Consider VPN usage affecting IP detection
+  </Accordion>
+
+  <Accordion title="Network error handling">
+    **Problem:** Poor handling of network disconnections.
+
+    **Solution:**
+    - Version 3.8.9 added support for internet disconnect cases
+    - Version 3.9.5 improved server error and no internet screens
+    - Ensure users have stable internet connection
+    - Test app behavior in airplane mode
+  </Accordion>
+</AccordionGroup>
+
+## Integration-Specific Issues
+
+<AccordionGroup>
+  <Accordion title="Sentry conflicts with app's Sentry">
+    **Problem:** SDK's Sentry installation conflicts with your own.
+
+    **Solutions:**
+    - Version 3.15.2 fixed conflicts between SDK and merchant Sentry
+    - Version 3.18.1 updated to Sentry 8.18.0 and fixed vulnerabilities
+    - Use latest SDK version for best compatibility
+    - Configure Sentry namespacing if needed
+  </Accordion>
+
+  <Accordion title="Metadata parameters not working">
+    **Problem:** Metadata values not being recognized or applied.
+
+    **Solutions:**
+    - Ensure correct parameter names and format:
+      ```swift
+      metadata: [
+          "fixedLanguage": "es",
+          "buttonColor": "#FF5733",
+          "buttonTextColor": "#FFFFFF",
+          "identityId": "existing-identity-id",
+          "encryptionConfigurationId": "config-id"
+      ]
+      ```
+    - Supported languages: "en", "es", "fr", "pt", "ru", "tr", "de", "it", "pl", "th"
+    - Version 3.9.8 replaced metadata dictionary with object
+  </Accordion>
+
+  <Accordion title="Re-verification not working">
+    **Problem:** Cannot re-verify an existing identity.
+
+    **Solutions:**
+    - Pass identityId in metadata:
+      ```swift
+      metadata: ["identityId": "your-identity-id"]
+      ```
+    - Version 3.14.0 added re-usage feature
+    - Version 3.15.0 added Idemia re-usage support
+    - Ensure the identity exists and is in a re-verifiable state
+  </Accordion>
+
+  <Accordion title="Verification resume after interruption fails">
+    **Problem:** Cannot resume verification after app interruption.
+
+    **Solution:**
+    - Version 3.22.4 added support for resuming after interruption
+    - Update to version 3.22.8
+    - Ensure proper state management in your app
+    - Test with phone calls and app backgrounding scenarios
+  </Accordion>
+</AccordionGroup>
+
+## Getting Additional Help
+
+If you're still experiencing issues after trying these solutions:
+
+1. Check the [GitHub issues page](https://github.com/GetMetaMap/metamap-ios-sdk/issues) for similar problems
+2. Review the [changelog](/resources/changelog) for recent fixes
+3. Ensure you're using the latest SDK version (3.22.8)
+4. Contact MetaMap support with:
+   - SDK version
+   - iOS version
+   - Device model
+   - Complete error logs
+   - Steps to reproduce the issue

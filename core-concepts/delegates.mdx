@@ -1,0 +1,633 @@
+---
+title: "Delegates and Callbacks"
+description: "Handle verification results using the MetaMapButtonResultDelegate protocol in the MetaMap iOS SDK"
+---
+
+## Overview
+
+The MetaMap iOS SDK uses the delegate pattern to notify your application of verification events. By implementing the `MetaMapButtonResultDelegate` protocol, you can respond to successful verifications, cancellations, and other events in the verification lifecycle.
+
+## MetaMapButtonResultDelegate Protocol
+
+The delegate protocol provides callback methods that are triggered when verification events occur:
+
+```swift
+public protocol MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?)
+    func verificationCancelled(identityId: String?, verificationID: String?)
+    func verificationCreated(identityId: String?, verificationID: String?)
+}
+```
+
+<Note>
+  All delegate methods are called on the main thread, so you can safely update UI elements directly in the callback methods.
+</Note>
+
+## Setting Up the Delegate
+
+### Swift Implementation
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Set the delegate to receive verification callbacks
+        MetaMapButtonResult.shared.delegate = self
+        
+        setupMetaMapButton()
+    }
+    
+    private func setupMetaMapButton() {
+        let metaMapButton = MetaMapButton()
+        metaMapButton.addTarget(self, action: #selector(metaMapButtonAction), for: .touchUpInside)
+        metaMapButton.frame = CGRect(x: 20, y: self.view.frame.size.height/2 - 50, width: view.frame.size.width - 40, height: 50)
+        view.addSubview(metaMapButton)
+    }
+    
+    @objc private func metaMapButtonAction() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: nil
+        )
+    }
+}
+
+// MARK: - MetaMapButtonResultDelegate
+extension ViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("✅ Verification Success")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+        
+        // Handle successful verification
+        handleSuccessfulVerification(identityId: identityId, verificationID: verificationID)
+    }
+    
+    func verificationCancelled(identityId: String?, verificationID: String?) {
+        print("❌ Verification Cancelled")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+        
+        // Handle cancellation
+        handleCancellation()
+    }
+    
+    func verificationCreated(identityId: String?, verificationID: String?) {
+        print("📝 Verification Created")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+        
+        // Handle verification creation
+        handleVerificationCreated(identityId: identityId, verificationID: verificationID)
+    }
+    
+    private func handleSuccessfulVerification(identityId: String?, verificationID: String?) {
+        // Implementation
+    }
+    
+    private func handleCancellation() {
+        // Implementation
+    }
+    
+    private func handleVerificationCreated(identityId: String?, verificationID: String?) {
+        // Implementation
+    }
+}
+```
+
+### Objective-C Implementation
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+@property (nonatomic, strong) MetaMapButton *metaMapButton;
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Set the delegate to receive verification callbacks
+    [MetaMapButtonResult shared].delegate = self;
+    
+    [self setupMetaMapButton];
+}
+
+- (void)setupMetaMapButton {
+    self.metaMapButton = [[MetaMapButton alloc] init];
+    [self.metaMapButton addTarget:self action:@selector(metaMapButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.metaMapButton.frame = CGRectMake(20, self.view.frame.size.height/2 - 25, self.view.frame.size.width - 40, 50);
+    [self.view addSubview:self.metaMapButton];
+}
+
+- (void)metaMapButtonAction:(UIButton *)sender {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID" 
+                                         flowId:@"YOUR_FLOW_ID" 
+                                       metadata:nil];
+}
+
+#pragma mark - MetaMapButtonResultDelegate
+
+- (void)verificationSuccessWithIdentityId:(NSString *)identityId 
+                           verificationID:(NSString *)verificationID {
+    NSLog(@"✅ Verification Success");
+    NSLog(@"Identity ID: %@", identityId);
+    NSLog(@"Verification ID: %@", verificationID);
+    
+    [self handleSuccessfulVerificationWithIdentityId:identityId verificationID:verificationID];
+}
+
+- (void)verificationCancelledWithIdentityId:(NSString *)identityId 
+                             verificationID:(NSString *)verificationID {
+    NSLog(@"❌ Verification Cancelled");
+    NSLog(@"Identity ID: %@", identityId);
+    NSLog(@"Verification ID: %@", verificationID);
+    
+    [self handleCancellation];
+}
+
+- (void)verificationCreatedWithIdentityId:(NSString *)identityId 
+                           verificationID:(NSString *)verificationID {
+    NSLog(@"📝 Verification Created");
+    NSLog(@"Identity ID: %@", identityId);
+    NSLog(@"Verification ID: %@", verificationID);
+    
+    [self handleVerificationCreatedWithIdentityId:identityId verificationID:verificationID];
+}
+
+- (void)handleSuccessfulVerificationWithIdentityId:(NSString *)identityId 
+                                     verificationID:(NSString *)verificationID {
+    // Implementation
+}
+
+- (void)handleCancellation {
+    // Implementation
+}
+
+- (void)handleVerificationCreatedWithIdentityId:(NSString *)identityId 
+                                 verificationID:(NSString *)verificationID {
+    // Implementation
+}
+
+@end
+```
+
+## Delegate Methods Explained
+
+### verificationSuccess
+
+<ParamField path="identityId" type="String?">
+  The unique identifier for the user's identity in the MetaMap system. This ID persists across multiple verification sessions and can be used for re-verification.
+  
+  **Use this to:**
+  - Store in your database to link users to their MetaMap identity
+  - Retrieve verification results via the MetaMap API
+  - Initiate re-verification flows
+</ParamField>
+
+<ParamField path="verificationID" type="String?">
+  The unique identifier for this specific verification attempt. Each time a user goes through verification, a new verification ID is generated.
+  
+  **Use this to:**
+  - Track individual verification attempts
+  - Retrieve specific verification details via the MetaMap API
+  - Implement verification analytics
+</ParamField>
+
+This method is called when the user successfully completes the verification process:
+
+```swift
+func verificationSuccess(identityId: String?, verificationID: String?) {
+    guard let identityId = identityId else {
+        print("Warning: Identity ID is nil")
+        return
+    }
+    
+    // Store identity ID for future use
+    UserDefaults.standard.set(identityId, forKey: "metamap_identity_id")
+    
+    // Notify your backend
+    notifyBackend(identityId: identityId, verificationID: verificationID)
+    
+    // Update UI
+    showSuccessMessage()
+    
+    // Navigate to next screen
+    navigateToMainApp()
+}
+```
+
+### verificationCancelled
+
+This method is called when the user cancels the verification process before completing it:
+
+```swift
+func verificationCancelled(identityId: String?, verificationID: String?) {
+    // Track cancellation event
+    Analytics.track("verification_cancelled", properties: [
+        "identityId": identityId ?? "none",
+        "verificationID": verificationID ?? "none"
+    ])
+    
+    // Show a message to encourage completion
+    showCancellationAlert()
+    
+    // Optionally track where in the flow they cancelled
+    if let verificationID = verificationID {
+        // User started but didn't complete
+        print("Partial verification: \(verificationID)")
+    } else {
+        // User cancelled before starting
+        print("Cancelled before starting verification")
+    }
+}
+```
+
+<Note>
+  The `identityId` and `verificationID` parameters may be `nil` if the user cancelled before any data was created in the MetaMap system.
+</Note>
+
+### verificationCreated
+
+This method is called when a verification session is created but before it's completed:
+
+```swift
+func verificationCreated(identityId: String?, verificationID: String?) {
+    // Track that verification was initiated
+    Analytics.track("verification_started", properties: [
+        "identityId": identityId ?? "unknown",
+        "verificationID": verificationID ?? "unknown"
+    ])
+    
+    // Show loading indicator or progress message
+    showVerificationInProgress()
+    
+    // Store the verification ID for tracking
+    if let verificationID = verificationID {
+        currentVerificationID = verificationID
+    }
+}
+```
+
+<Tip>
+  Use `verificationCreated` to track conversion funnels and understand how many users start verification versus complete it.
+</Tip>
+
+## SwiftUI Implementation
+
+For SwiftUI applications, you can use a UIViewControllerRepresentable wrapper:
+
+```swift
+import SwiftUI
+import MetaMapSDK
+import UIKit
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            ZStack {
+                // MARK: MetaMapDelegateObserver
+                MetaMapDelegateObserver { identityId, verificationId in
+                    print("✅ Success: \(identityId ?? "N/A"), \(verificationId ?? "N/A")")
+                    handleVerificationSuccess(identityId: identityId, verificationId: verificationId)
+                } cancelled: { identityId, verificationId in
+                    print("❌ Cancelled: \(identityId ?? "N/A"), \(verificationId ?? "N/A")")
+                    handleVerificationCancelled()
+                } created: { identityId, verificationId in
+                    print("📝 Created: \(identityId ?? "N/A"), \(verificationId ?? "N/A")")
+                    handleVerificationCreated(identityId: identityId, verificationId: verificationId)
+                }
+                
+                HStack {
+                    Button(action: {
+                        MetaMap.shared.showMetaMapFlow(
+                            clientId: "YOUR_CLIENT_ID",
+                            flowId: "YOUR_FLOW_ID",
+                            metadata: nil
+                        )
+                    }) {
+                        Text("Start Verification")
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+        }
+    }
+    
+    func handleVerificationSuccess(identityId: String?, verificationId: String?) {
+        // Handle success
+    }
+    
+    func handleVerificationCancelled() {
+        // Handle cancellation
+    }
+    
+    func handleVerificationCreated(identityId: String?, verificationId: String?) {
+        // Handle creation
+    }
+}
+
+struct MetaMapDelegateObserver: UIViewControllerRepresentable {
+    let vc = MetaMapViewController()
+    
+    var success: (_ identityId: String?, _ verificationId: String?) -> Void
+    var cancelled: (_ identityId: String?, _ verificationId: String?) -> Void
+    var created: (_ identityId: String?, _ verificationId: String?) -> Void
+    
+    func makeUIViewController(context: Context) -> MetaMapViewController {
+        return vc
+    }
+    
+    func updateUIViewController(_ uiViewController: MetaMapViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(success: success, cancelled: cancelled, created: created)
+    }
+    
+    class Coordinator: NSObject, MetaMapButtonResultDelegate {
+        func verificationSuccess(identityId: String?, verificationID: String?) {
+            success(identityId, verificationID)
+        }
+        
+        func verificationCancelled(identityId: String?, verificationID: String?) {
+            cancelled(identityId, verificationID)
+        }
+        
+        func verificationCreated(identityId: String?, verificationID: String?) {
+            created(identityId, verificationID)
+        }
+        
+        var success: (_ identityId: String?, _ verificationId: String?) -> Void
+        var cancelled: (_ identityId: String?, _ verificationId: String?) -> Void
+        var created: (_ identityId: String?, _ verificationId: String?) -> Void
+        
+        init(success: @escaping (_ identityId: String?, _ verificationId: String?) -> Void,
+             cancelled: @escaping (_ identityId: String?, _ verificationId: String?) -> Void,
+             created: @escaping (_ identityId: String?, _ verificationId: String?) -> Void) {
+            self.success = success
+            self.cancelled = cancelled
+            self.created = created
+            super.init()
+            MetaMapButtonResult.shared.delegate = self
+        }
+    }
+}
+
+class MetaMapViewController: UIViewController {}
+```
+
+## Practical Implementation Patterns
+
+### Backend Notification
+
+```swift
+func verificationSuccess(identityId: String?, verificationID: String?) {
+    guard let identityId = identityId else { return }
+    
+    // Prepare verification data
+    let verificationData: [String: Any] = [
+        "identityId": identityId,
+        "verificationId": verificationID ?? "",
+        "userId": currentUser.id,
+        "timestamp": Date().timeIntervalSince1970
+    ]
+    
+    // Send to your backend
+    APIClient.shared.notifyVerificationComplete(data: verificationData) { result in
+        switch result {
+        case .success:
+            print("Backend notified successfully")
+            self.updateUserStatus(verified: true)
+        case .failure(let error):
+            print("Failed to notify backend: \(error)")
+            self.handleBackendError(error)
+        }
+    }
+}
+```
+
+### Analytics Integration
+
+```swift
+extension ViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        // Track successful verification
+        Analytics.track("verification_completed", properties: [
+            "identity_id": identityId ?? "unknown",
+            "verification_id": verificationID ?? "unknown",
+            "user_id": currentUser.id,
+            "timestamp": Date().timeIntervalSince1970,
+            "flow_id": currentFlowId
+        ])
+        
+        // Update user properties
+        Analytics.setUserProperties([
+            "verified": true,
+            "verification_date": Date()
+        ])
+    }
+    
+    func verificationCancelled(identityId: String?, verificationID: String?) {
+        // Track cancellation
+        Analytics.track("verification_cancelled", properties: [
+            "identity_id": identityId ?? "none",
+            "verification_id": verificationID ?? "none",
+            "user_id": currentUser.id,
+            "timestamp": Date().timeIntervalSince1970
+        ])
+    }
+    
+    func verificationCreated(identityId: String?, verificationID: String?) {
+        // Track verification start
+        Analytics.track("verification_started", properties: [
+            "identity_id": identityId ?? "unknown",
+            "verification_id": verificationID ?? "unknown",
+            "user_id": currentUser.id,
+            "timestamp": Date().timeIntervalSince1970
+        ])
+    }
+}
+```
+
+### Navigation Flow
+
+```swift
+func verificationSuccess(identityId: String?, verificationID: String?) {
+    // Save identity ID
+    UserDefaults.standard.set(identityId, forKey: "metamap_identity_id")
+    
+    // Show success animation
+    showSuccessAnimation {
+        // Navigate to main app after animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.navigateToMainScreen()
+        }
+    }
+}
+
+func verificationCancelled(identityId: String?, verificationID: String?) {
+    // Show alert asking if user wants to try again
+    let alert = UIAlertController(
+        title: "Verification Cancelled",
+        message: "Would you like to try again? Verification is required to access all features.",
+        preferredStyle: .alert
+    )
+    
+    alert.addAction(UIAlertAction(title: "Try Again", style: .default) { _ in
+        self.retryVerification()
+    })
+    
+    alert.addAction(UIAlertAction(title: "Later", style: .cancel) { _ in
+        self.dismiss(animated: true)
+    })
+    
+    present(alert, animated: true)
+}
+
+private func showSuccessAnimation(completion: @escaping () -> Void) {
+    // Implementation
+}
+
+private func navigateToMainScreen() {
+    // Implementation
+}
+
+private func retryVerification() {
+    // Implementation
+}
+```
+
+### State Management
+
+```swift
+class VerificationManager {
+    enum VerificationState {
+        case notStarted
+        case inProgress(verificationID: String?)
+        case completed(identityId: String, verificationID: String)
+        case cancelled
+        case failed(Error)
+    }
+    
+    @Published var state: VerificationState = .notStarted
+    
+    func handleVerificationCreated(identityId: String?, verificationID: String?) {
+        state = .inProgress(verificationID: verificationID)
+    }
+    
+    func handleVerificationSuccess(identityId: String?, verificationID: String?) {
+        guard let identityId = identityId, let verificationID = verificationID else {
+            return
+        }
+        state = .completed(identityId: identityId, verificationID: verificationID)
+    }
+    
+    func handleVerificationCancelled() {
+        state = .cancelled
+    }
+}
+
+// Usage in ViewController
+extension ViewController: MetaMapButtonResultDelegate {
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        verificationManager.handleVerificationSuccess(
+            identityId: identityId,
+            verificationID: verificationID
+        )
+    }
+    
+    func verificationCancelled(identityId: String?, verificationID: String?) {
+        verificationManager.handleVerificationCancelled()
+    }
+    
+    func verificationCreated(identityId: String?, verificationID: String?) {
+        verificationManager.handleVerificationCreated(
+            identityId: identityId,
+            verificationID: verificationID
+        )
+    }
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always Set the Delegate Before Starting Verification">
+    Set `MetaMapButtonResult.shared.delegate = self` in `viewDidLoad()` or before calling `showMetaMapFlow()` to ensure you don't miss any callbacks.
+  </Accordion>
+  
+  <Accordion title="Handle Nil Values Gracefully">
+    Both `identityId` and `verificationID` can be `nil` in certain scenarios (like early cancellation). Always check for nil before using these values.
+  </Accordion>
+  
+  <Accordion title="Store Identity ID Securely">
+    The `identityId` is important for re-verification. Store it securely using Keychain Services or UserDefaults, depending on your security requirements.
+  </Accordion>
+  
+  <Accordion title="Provide User Feedback">
+    Always provide clear feedback to users when verification completes or is cancelled. Use animations, alerts, or navigation to acknowledge the event.
+  </Accordion>
+  
+  <Accordion title="Implement Proper Error Handling">
+    Don't just log errors - implement proper error handling and recovery strategies, especially for backend communication failures.
+  </Accordion>
+  
+  <Accordion title="Track Analytics Events">
+    Use the delegate callbacks to track important analytics events like verification completion rates, cancellation reasons, and user flow patterns.
+  </Accordion>
+</AccordionGroup>
+
+## Common Issues and Solutions
+
+### Delegate Methods Not Being Called
+
+**Problem:** Verification completes but delegate methods aren't triggered.
+
+**Solutions:**
+- Ensure you set the delegate: `MetaMapButtonResult.shared.delegate = self`
+- Verify your class conforms to `MetaMapButtonResultDelegate`
+- Check that the delegate is set before calling `showMetaMapFlow()`
+- Make sure the view controller isn't being deallocated prematurely
+
+### Missing Identity ID
+
+**Problem:** `identityId` is `nil` in the success callback.
+
+**Solutions:**
+- This can happen if verification was completed but identity creation failed
+- Check your MetaMap Dashboard for the verification status
+- Ensure your flow configuration is correct
+- Contact MetaMap support if the issue persists
+
+### Multiple Delegate Calls
+
+**Problem:** Receiving multiple calls to the same delegate method.
+
+**Solutions:**
+- Implement a flag to prevent duplicate processing
+- Check if you're setting the delegate multiple times
+- Ensure you're not creating multiple instances of your view controller
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/core-concepts/authentication">
+    Learn about clientId and flowId parameters
+  </Card>
+  <Card title="Metadata" icon="tags" href="/core-concepts/metadata">
+    Customize verification with metadata parameters
+  </Card>
+</CardGroup>

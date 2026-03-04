@@ -1,0 +1,606 @@
+---
+title: "Error Handling"
+description: "Handle errors and cancellations in MetaMap iOS SDK verification flows"
+---
+
+Proper error handling is crucial for providing a smooth user experience with the MetaMap iOS SDK. This guide covers handling verification cancellations, common error scenarios, and best practices.
+
+## Verification Callbacks
+
+The MetaMap iOS SDK provides two main callbacks through the `MetaMapButtonResultDelegate` protocol:
+
+### Success Callback
+
+Called when verification completes successfully:
+
+```swift
+func verificationSuccess(identityId: String?, verificationID: String?)
+```
+
+### Cancellation Callback
+
+Called when the user cancels verification or an error occurs:
+
+```swift
+func verificationCancelled()
+```
+
+<Note>
+  As of SDK version 3.22.7, the `verificationCancelled` method includes `identityId` and `verificationId` parameters to help track partial verifications.
+</Note>
+
+## Basic Error Handling Implementation
+
+### Swift
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class ViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    @objc private func metaMapButtonAction() {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: ["key1": "value1"]
+        )
+    }
+}
+
+extension ViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("✅ Verification Success")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+        
+        // Navigate to success screen
+        showSuccessScreen()
+    }
+    
+    func verificationCancelled() {
+        print("❌ Verification Cancelled")
+        
+        // Show cancellation alert or navigate accordingly
+        showCancellationAlert()
+    }
+    
+    private func showSuccessScreen() {
+        let alert = UIAlertController(
+            title: "Verification Complete",
+            message: "Your identity has been successfully verified.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func showCancellationAlert() {
+        let alert = UIAlertController(
+            title: "Verification Cancelled",
+            message: "Would you like to try again?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Try Again", style: .default) { [weak self] _ in
+            self?.metaMapButtonAction()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+}
+```
+
+### Objective-C
+
+```objc
+#import "ViewController.h"
+#import <MetaMapSDK/MetaMapSDK.h>
+
+@interface ViewController () <MetaMapButtonResultDelegate>
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [MetaMapButtonResult shared].delegate = self;
+}
+
+- (void)metaMapButtonAction:(UIButton *)sender {
+    [MetaMap.shared showMetaMapFlowWithClientId:@"YOUR_CLIENT_ID"
+                                         flowId:@"YOUR_FLOW_ID"
+                                       metadata:@{@"key1": @"value"}];
+}
+
+#pragma mark - MetaMapButtonResultDelegate
+
+- (void)verificationSuccessWithIdentityId:(NSString *)identityId
+                           verificationID:(NSString *)verificationID {
+    NSLog(@"✅ Success: %@", identityId);
+    [self showSuccessScreen];
+}
+
+- (void)verificationCancelled {
+    NSLog(@"❌ Cancelled");
+    [self showCancellationAlert];
+}
+
+@end
+```
+
+## Advanced Error Handling
+
+### Tracking Cancellation Reasons
+
+```swift
+import MetaMapSDK
+
+class AdvancedErrorHandler: NSObject, MetaMapButtonResultDelegate {
+    
+    enum CancellationReason {
+        case userInitiated
+        case networkError
+        case permissionDenied
+        case configurationError
+        case unknown
+    }
+    
+    private var verificationAttempts = 0
+    private let maxAttempts = 3
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        verificationAttempts = 0
+        handleSuccess(identityId: identityId, verificationID: verificationID)
+    }
+    
+    func verificationCancelled() {
+        verificationAttempts += 1
+        
+        let reason = determineCancellationReason()
+        handleCancellation(reason: reason)
+        
+        if verificationAttempts >= maxAttempts {
+            handleMaxAttemptsReached()
+        }
+    }
+    
+    private func determineCancellationReason() -> CancellationReason {
+        // Implement logic to determine cancellation reason
+        // This could be based on metadata, error codes, or other factors
+        return .unknown
+    }
+    
+    private func handleSuccess(identityId: String?, verificationID: String?) {
+        print("Verification successful")
+        // Notify your backend
+        notifyBackend(identityId: identityId, verificationID: verificationID)
+    }
+    
+    private func handleCancellation(reason: CancellationReason) {
+        switch reason {
+        case .userInitiated:
+            print("User cancelled the verification")
+            logEvent("user_cancelled_verification")
+            
+        case .networkError:
+            print("Network error occurred")
+            showNetworkErrorAlert()
+            logEvent("network_error_verification")
+            
+        case .permissionDenied:
+            print("Required permission was denied")
+            showPermissionAlert()
+            logEvent("permission_denied_verification")
+            
+        case .configurationError:
+            print("Configuration error")
+            showConfigurationErrorAlert()
+            logEvent("config_error_verification")
+            
+        case .unknown:
+            print("Unknown cancellation reason")
+            showGenericErrorAlert()
+            logEvent("unknown_error_verification")
+        }
+    }
+    
+    private func handleMaxAttemptsReached() {
+        print("Maximum verification attempts reached")
+        showMaxAttemptsAlert()
+        logEvent("max_attempts_reached")
+    }
+    
+    private func notifyBackend(identityId: String?, verificationID: String?) {
+        // Implement your backend notification logic
+    }
+    
+    private func logEvent(_ eventName: String) {
+        // Log to your analytics service
+        print("Event: \(eventName)")
+    }
+    
+    private func showNetworkErrorAlert() {
+        // Show network error alert
+    }
+    
+    private func showPermissionAlert() {
+        // Show permission denial alert
+    }
+    
+    private func showConfigurationErrorAlert() {
+        // Show configuration error alert
+    }
+    
+    private func showGenericErrorAlert() {
+        // Show generic error alert
+    }
+    
+    private func showMaxAttemptsAlert() {
+        // Show max attempts reached alert
+    }
+}
+```
+
+## Common Error Scenarios
+
+### 1. Network Connectivity Issues
+
+```swift
+import SystemConfiguration
+
+class NetworkMonitor {
+    
+    static func isNetworkAvailable() -> Bool {
+        var zeroAddress = sockaddr_in()
+        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+        
+        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { zeroSockAddress in
+                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+            }
+        }
+        
+        var flags = SCNetworkReachabilityFlags()
+        if !SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) {
+            return false
+        }
+        
+        let isReachable = flags.contains(.reachable)
+        let needsConnection = flags.contains(.connectionRequired)
+        
+        return isReachable && !needsConnection
+    }
+    
+    static func checkNetworkBeforeVerification(completion: @escaping (Bool) -> Void) {
+        if isNetworkAvailable() {
+            completion(true)
+        } else {
+            showNoInternetAlert()
+            completion(false)
+        }
+    }
+    
+    private static func showNoInternetAlert() {
+        let alert = UIAlertController(
+            title: "No Internet Connection",
+            message: "Please check your internet connection and try again.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        // Present alert
+    }
+}
+
+// Usage
+NetworkMonitor.checkNetworkBeforeVerification { isAvailable in
+    if isAvailable {
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+}
+```
+
+### 2. Invalid Configuration
+
+```swift
+class ConfigurationValidator {
+    
+    static func validateConfiguration(clientId: String, flowId: String) -> (isValid: Bool, error: String?) {
+        // Check if clientId is not empty
+        guard !clientId.isEmpty else {
+            return (false, "Client ID is required")
+        }
+        
+        // Check if flowId is not empty
+        guard !flowId.isEmpty else {
+            return (false, "Flow ID is required")
+        }
+        
+        // Validate format if needed
+        // Add more validation rules as needed
+        
+        return (true, nil)
+    }
+    
+    static func startVerificationWithValidation(clientId: String, flowId: String, metadata: [String: Any] = [:]) {
+        let validation = validateConfiguration(clientId: clientId, flowId: flowId)
+        
+        if validation.isValid {
+            MetaMap.shared.showMetaMapFlow(
+                clientId: clientId,
+                flowId: flowId,
+                metadata: metadata
+            )
+        } else {
+            showConfigurationError(validation.error ?? "Unknown error")
+        }
+    }
+    
+    private static func showConfigurationError(_ message: String) {
+        print("Configuration Error: \(message)")
+        // Show alert to user or log error
+    }
+}
+```
+
+### 3. Permission Denials
+
+```swift
+import AVFoundation
+import Photos
+
+class PermissionChecker {
+    
+    static func checkAllPermissions(completion: @escaping (Bool) -> Void) {
+        checkCameraPermission { cameraGranted in
+            if !cameraGranted {
+                self.showPermissionDeniedAlert(for: "Camera")
+                completion(false)
+                return
+            }
+            
+            self.checkPhotoLibraryPermission { photosGranted in
+                if !photosGranted {
+                    self.showPermissionDeniedAlert(for: "Photo Library")
+                    completion(false)
+                    return
+                }
+                
+                self.checkMicrophonePermission { micGranted in
+                    if !micGranted {
+                        self.showPermissionDeniedAlert(for: "Microphone")
+                        completion(false)
+                        return
+                    }
+                    
+                    completion(true)
+                }
+            }
+        }
+    }
+    
+    private static func checkCameraPermission(completion: @escaping (Bool) -> Void) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        if status == .authorized {
+            completion(true)
+        } else if status == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .video, completionHandler: completion)
+        } else {
+            completion(false)
+        }
+    }
+    
+    private static func checkPhotoLibraryPermission(completion: @escaping (Bool) -> Void) {
+        let status = PHPhotoLibrary.authorizationStatus()
+        if status == .authorized || status == .limited {
+            completion(true)
+        } else if status == .notDetermined {
+            PHPhotoLibrary.requestAuthorization { newStatus in
+                completion(newStatus == .authorized || newStatus == .limited)
+            }
+        } else {
+            completion(false)
+        }
+    }
+    
+    private static func checkMicrophonePermission(completion: @escaping (Bool) -> Void) {
+        let status = AVAudioSession.sharedInstance().recordPermission
+        if status == .granted {
+            completion(true)
+        } else if status == .undetermined {
+            AVAudioSession.sharedInstance().requestRecordPermission(completion)
+        } else {
+            completion(false)
+        }
+    }
+    
+    private static func showPermissionDeniedAlert(for permission: String) {
+        let alert = UIAlertController(
+            title: "Permission Required",
+            message: "\(permission) access is required for verification. Please enable it in Settings.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsURL)
+            }
+        })
+        
+        // Present alert
+    }
+}
+```
+
+### 4. Encryption Configuration Errors
+
+```swift
+class EncryptionHandler {
+    
+    static func startVerificationWithEncryption(
+        clientId: String,
+        flowId: String,
+        encryptionConfigId: String
+    ) {
+        guard !encryptionConfigId.isEmpty else {
+            print("Error: Encryption configuration ID is empty")
+            showEncryptionConfigError()
+            return
+        }
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: clientId,
+            flowId: flowId,
+            metadata: ["encryptionConfigurationId": encryptionConfigId]
+        )
+    }
+    
+    private static func showEncryptionConfigError() {
+        // Show error alert
+    }
+}
+```
+
+## SwiftUI Error Handling
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct VerificationView: View {
+    
+    @State private var showError = false
+    @State private var errorMessage = ""
+    @State private var verificationStatus: VerificationStatus = .idle
+    
+    enum VerificationStatus {
+        case idle
+        case inProgress
+        case success
+        case failed
+    }
+    
+    var body: some View {
+        VStack {
+            Button("Start Verification") {
+                startVerification()
+            }
+            .disabled(verificationStatus == .inProgress)
+            
+            if verificationStatus == .success {
+                Text("✅ Verification Successful")
+                    .foregroundColor(.green)
+            }
+            
+            MetaMapDelegateObserver { identityId, verificationId in
+                handleSuccess(identityId: identityId, verificationId: verificationId)
+            } cancelled: {
+                handleCancellation()
+            }
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("Try Again") {
+                startVerification()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
+    }
+    
+    private func startVerification() {
+        verificationStatus = .inProgress
+        
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+    
+    private func handleSuccess(identityId: String?, verificationId: String?) {
+        verificationStatus = .success
+        print("Success: \(identityId ?? "N/A")")
+    }
+    
+    private func handleCancellation() {
+        verificationStatus = .failed
+        errorMessage = "Verification was cancelled. Would you like to try again?"
+        showError = true
+    }
+}
+```
+
+## Best Practices
+
+1. **Always Implement Both Callbacks**: Handle both success and cancellation scenarios
+2. **Validate Before Starting**: Check network connectivity and permissions before launching SDK
+3. **Provide Clear Feedback**: Show appropriate messages to users for different error types
+4. **Log Events**: Track verification attempts and failures for analytics
+5. **Retry Logic**: Implement smart retry mechanisms with exponential backoff
+6. **User Guidance**: Guide users to fix issues (e.g., enable permissions, check internet)
+7. **Backend Notification**: Notify your backend of both successful and failed verifications
+8. **Error Analytics**: Track error types and frequencies to identify patterns
+
+## Error Logging Example
+
+```swift
+class VerificationLogger {
+    
+    static func logVerificationEvent(
+        event: String,
+        identityId: String? = nil,
+        verificationId: String? = nil,
+        error: String? = nil,
+        metadata: [String: Any]? = nil
+    ) {
+        var logData: [String: Any] = [
+            "event": event,
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        
+        if let identityId = identityId {
+            logData["identityId"] = identityId
+        }
+        
+        if let verificationId = verificationId {
+            logData["verificationId"] = verificationId
+        }
+        
+        if let error = error {
+            logData["error"] = error
+        }
+        
+        if let metadata = metadata {
+            logData["metadata"] = metadata
+        }
+        
+        print("📊 Verification Event: \(logData)")
+        // Send to your analytics service
+    }
+}
+
+// Usage
+VerificationLogger.logVerificationEvent(
+    event: "verification_cancelled",
+    error: "user_cancelled",
+    metadata: ["attempt": 2]
+)
+```
+
+<Warning>
+  Always test your error handling thoroughly in different scenarios: network failures, permission denials, configuration errors, and user cancellations.
+</Warning>

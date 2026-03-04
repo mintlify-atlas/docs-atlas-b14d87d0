@@ -1,0 +1,310 @@
+---
+title: "Biometric Verification"
+description: "Implement liveness detection, face verification, and anti-spoofing measures with the MetaMap iOS SDK"
+---
+
+## Overview
+
+Biometric verification in the MetaMap iOS SDK provides robust identity verification through facial recognition, liveness detection, and anti-spoofing measures. The SDK supports both active and passive liveness detection methods.
+
+## Verification Methods
+
+<CardGroup cols={2}>
+  <Card title="Active Liveness" icon="video">
+    Video-based liveness detection with real-time face tracking and movement verification
+  </Card>
+  <Card title="Passive Liveness" icon="camera">
+    Single-frame liveness detection using advanced AI analysis
+  </Card>
+  <Card title="Voice Liveness" icon="microphone">
+    Audio-based verification for additional security layer
+  </Card>
+  <Card title="Face Detection" icon="face-smile">
+    Real-time face detection during video recording
+  </Card>
+</CardGroup>
+
+## Liveness Detection
+
+### Active Liveness
+
+Active liveness requires users to record a short video while performing specific actions or simply looking at the camera. The SDK automatically validates the user's presence.
+
+```swift
+import MetaMapSDK
+
+class BiometricViewController: UIViewController {
+    
+    func startBiometricVerification() {
+        // Configure and start biometric flow
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+}
+```
+
+#### Key Features
+
+- **Automatic Recording**: Video recording starts when face is detected
+- **Time Limit**: Automatically stops after 20 seconds
+- **Real-time Feedback**: Face detection overlay during recording
+- **Orientation Support**: Works in portrait mode (iPad support included)
+
+<Note>
+Liveness videos automatically stop recording after 20 seconds to ensure optimal file size and processing time.
+</Note>
+
+### Passive Liveness
+
+Passive liveness detection analyzes a single selfie photo using advanced AI to determine if the image is from a live person.
+
+#### Enhanced Checks
+
+- **Face Mask Detection**: Identifies if the user is wearing a face mask
+- **Lens Detection**: Detects eyeglasses and lens artifacts
+- **Anti-Spoofing**: Validates against printed photos and digital screens
+
+<Warning>
+Face mask and lens checks are enabled for passive liveness verification. Users should remove face masks and, if required, eyeglasses for successful verification.
+</Warning>
+
+## Voice Liveness
+
+Voice liveness adds an additional verification layer using audio recording and voice analysis.
+
+### Implementation
+
+```swift
+// Voice liveness is configured in your flow settings
+// Ensure microphone permission is granted
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [:]
+)
+```
+
+### Features
+
+- **Automatic Time Limit**: Recording stops after 20 seconds
+- **Voice Analysis**: Validates human voice patterns
+- **Anti-Spoofing**: Detects recorded or synthetic audio
+
+<Note>
+Voice liveness requires microphone permission. Make sure to include `NSMicrophoneUsageDescription` in your Info.plist.
+</Note>
+
+## Face Detection
+
+Real-time face detection provides visual feedback during biometric capture:
+
+- **Face Position Guidance**: Helps users position their face correctly
+- **Face Tracking**: Follows face movement in real-time
+- **Quality Validation**: Ensures adequate lighting and face visibility
+- **Mobile-Side Processing**: Face detection runs on-device for privacy
+
+## Third-Party Integration
+
+### Incode SDK Integration
+
+The MetaMap iOS SDK integrates with Incode for enhanced biometric verification:
+
+- Selfie verification using Incode technology
+- Advanced liveness detection algorithms
+- Improved accuracy and anti-spoofing measures
+
+<Note>
+Incode SDK integration is handled automatically by the MetaMap SDK. No additional configuration is required.
+</Note>
+
+## Required Permissions
+
+<Warning>
+Biometric verification requires specific iOS permissions. Add all necessary permission descriptions to your `Info.plist`:
+</Warning>
+
+```xml
+<!-- Required for selfie and liveness detection -->
+<key>NSCameraUsageDescription</key>
+<string>MetaMap needs access to your Camera</string>
+
+<!-- Required for voice liveness -->
+<key>NSMicrophoneUsageDescription</key>
+<string>MetaMap needs access to your Microphone</string>
+
+<!-- Optional: for uploading existing photos -->
+<key>NSPhotoLibraryUsageDescription</key>
+<string>MetaMap needs access to your media library</string>
+```
+
+## Implementation Example
+
+### Complete Swift Implementation
+
+```swift
+import UIKit
+import MetaMapSDK
+
+class BiometricVerificationViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupMetaMap()
+    }
+    
+    private func setupMetaMap() {
+        // Set delegate for results
+        MetaMapButtonResult.shared.delegate = self
+    }
+    
+    @objc private func startVerification() {
+        // Start biometric verification flow
+        MetaMap.shared.showMetaMapFlow(
+            clientId: "YOUR_CLIENT_ID",
+            flowId: "YOUR_FLOW_ID",
+            metadata: [:]
+        )
+    }
+}
+
+extension BiometricVerificationViewController: MetaMapButtonResultDelegate {
+    
+    func verificationSuccess(identityId: String?, verificationID: String?) {
+        print("Biometric verification successful")
+        print("Identity ID: \(identityId ?? "N/A")")
+        print("Verification ID: \(verificationID ?? "N/A")")
+        
+        // Proceed with your app flow
+        handleSuccessfulVerification(identityId: identityId)
+    }
+    
+    func verificationCancelled() {
+        print("Biometric verification was cancelled by user")
+        // Handle cancellation
+    }
+    
+    private func handleSuccessfulVerification(identityId: String?) {
+        // Your post-verification logic
+    }
+}
+```
+
+### SwiftUI Implementation
+
+```swift
+import SwiftUI
+import MetaMapSDK
+
+struct BiometricVerificationView: View {
+    var body: some View {
+        VStack {
+            MetaMapDelegateObserver { identityId, verificationId in
+                print("Success: \(identityId ?? ""), \(verificationId ?? "")")
+            } cancelled: {
+                print("Verification cancelled")
+            }
+            
+            Button("Start Biometric Verification") {
+                MetaMap.shared.showMetaMapFlow(
+                    clientId: "YOUR_CLIENT_ID",
+                    flowId: "YOUR_FLOW_ID",
+                    metadata: [:]
+                )
+            }
+        }
+    }
+}
+```
+
+## Error Handling
+
+Handle common biometric verification errors:
+
+### Face Mask Detection Error
+
+```swift
+func verificationCancelled() {
+    // User may have been wearing a face mask
+    showAlert(message: "Please remove face mask and try again")
+}
+```
+
+### Common Issues
+
+1. **Poor Lighting**: Ensure adequate lighting for face detection
+2. **Face Not Detected**: User should look directly at camera
+3. **Multiple Faces**: Only one person should be in frame
+4. **Face Mask/Glasses**: May need to be removed for verification
+
+<Note>
+The SDK provides automatic error messages to guide users through common issues.
+</Note>
+
+## Customization Options
+
+Customize the biometric verification experience:
+
+```swift
+// Customize button colors
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: [
+        "buttonColor": "#007AFF",
+        "buttonTextColor": "#FFFFFF"
+    ]
+)
+```
+
+## Best Practices
+
+1. **Clear Instructions**: Provide users with clear guidance before starting
+2. **Adequate Lighting**: Encourage well-lit environment
+3. **Permission Handling**: Request permissions with clear explanation
+4. **Error Recovery**: Provide helpful error messages and retry options
+5. **Privacy Communication**: Explain why biometric data is needed
+
+## Device Requirements
+
+- **Minimum iOS Version**: iOS 13.0
+- **Camera**: Required for liveness detection
+- **Microphone**: Required for voice liveness (if enabled)
+- **Storage**: At least 30 MB for SDK and temporary video files
+
+## Security Features
+
+### Anti-Spoofing Measures
+
+- **Print Detection**: Identifies printed photos
+- **Screen Detection**: Detects digital displays
+- **Replay Attack Prevention**: Validates against recorded videos
+- **Mask Detection**: Identifies face masks and disguises
+
+### Data Privacy
+
+- Face detection processing happens on-device
+- Video data is encrypted during transmission
+- Support for encryption configuration ID
+
+```swift
+// Enable encryption for biometric data
+MetaMap.shared.showMetaMapFlow(
+    clientId: "YOUR_CLIENT_ID",
+    flowId: "YOUR_FLOW_ID",
+    metadata: ["encryptionConfigurationId": "YOUR_ENCRYPTION_CONFIG_ID"]
+)
+```
+
+## Version History
+
+- **v3.22.3**: Fixed iPad orientation capture issue for active liveness
+- **v3.22.2**: Enabled face mask and lens checks for passive liveness
+- **v3.22.0**: Added Incode SDK implementation for selfie verification
+- **v3.18.2**: Added face detection on real-time video recording
+- **v3.11.3**: Fixed crash on voice liveness step
+- **v3.11.0**: Liveness and voice liveness videos auto-stop at 20 seconds
+- **v3.9.1**: Added initial face detection feature
+- **v3.8.9**: Added face mask detection error case
